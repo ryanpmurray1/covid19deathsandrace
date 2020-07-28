@@ -1,5 +1,93 @@
 <html>
-  <h1>This is a placeholder for the UIUC Summer 2020 CS498 Narrative Visualation (Final Project)!</h1>
+  <h1>This is a placeholder for the UIUC Summer 2020 CS498 Narrative Visualization (Final Project)!</h1>
   <body>
   </body>
+</html>
+
+<html>
+	<script src='https://d3js.org/d3.v5.min.js'></script>
+	<style> circle {fill: lightblue; stroke: black;} </style>
+	<body onload='init()'>
+		<svg width=900 height=700>
+		</svg>
+		<script>
+async function init() {
+//const data = await d3.csv('https://flunky.github.io/cars2017.csv');
+//const proxyurl = "https://cors-anywhere.herokuapp.com/";
+const data = await d3.csv('https://raw.githubusercontent.com/ryanpmurray1/covid19deathsbyrace/master/Provisional_Death_Counts_for_Coronavirus_Disease__COVID-19___Weekly_State-Specific_Data_Updates.csv');
+console.log(data);
+
+xvar = 'State';
+yvar = 'Non-Hispanic White';
+rowselect = 'Indicator';
+data.forEach(function(d) {
+	d[yvar] = +d[yvar];
+});
+
+// Define the margins and dimensions
+//margin = 50;
+topmargin = 50;
+bottommargin = 50;
+leftmargin = 50;
+rightmargin = 50;
+
+//w = 800;
+//h = 500;
+w = 900 - leftmargin - rightmargin;
+h = 600 - topmargin - bottommargin;
+
+//xdomain = data.map(function(d) {
+//	if (d.rowselect == "Count of COVID-19 deaths") {return d.State};});
+xdomain = data.map(function(d) { return d.State; });
+console.log("xdomain:");
+console.log(xdomain);
+xrange = [0,w];
+ydomain = [0,d3.max(data, function(d) { 
+	console.log(d[yvar]);
+	return d[yvar]; })];
+console.log("ydomain:");
+console.log(ydomain);
+yrange = [h,0];
+
+
+// X-axis
+//xs = d3.scaleBand().domain(xdomain).range(xrange);
+var x = d3.scaleBand()
+	.domain(xdomain)
+	.range(xrange)
+	.padding(0,2);
+d3.select('svg')
+    .append("g")
+    .attr("transform","translate("+topmargin+","+(h+bottommargin)+")")
+	.call(d3.axisBottom(x))
+    .selectAll("text")
+    	.attr("transform", "translate(-10,0)rotate(-45)")
+    	.style("text-anchor", "end");
+
+// Y-axis
+//ys = d3.scaleLinear().domain(ydomain).range(yrange);
+var y = d3.scaleLinear()
+	.domain(ydomain)
+	.range(yrange);
+d3.select('svg')
+    .append("g")
+    .attr("transform","translate("+leftmargin+","+rightmargin+")")
+    .call(d3.axisLeft(y));
+    
+// Populate the data
+d3.select('svg')
+   .append('g')
+   .attr('transform',"translate("+leftmargin+","+rightmargin+")")
+   .attr("fill", "purple")
+   .selectAll()
+       .data(data)
+       .enter()
+       .append("rect")
+           .attr('x',function(d,i) {return x(d[xvar]);})
+           .attr('y',function(d,i) {return y(d[yvar]);})
+           .attr('width', x.bandwidth())
+           .attr('height',function(d,i) {return h-y(d[yvar]);});
+}
+		</script>
+	</body>
 </html>
