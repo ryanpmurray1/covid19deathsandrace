@@ -1,0 +1,256 @@
+<html>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+
+<head>
+	<title>COVID-19 Deaths by Race</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<h1>COVID-19 Deaths by Race</h1>
+</head>
+
+
+<body onload='init()'>
+
+	<p class="blocktext">REPLACE ME! Number of deaths reported in this table are the 
+	total number of deaths received and coded as of the date of analysis, and do not 
+	represent all deaths that occurred in that period. Data during this period are 
+	incomplete because of the lag in time between when the death occurred and when 
+	the death certificate is completed, submitted to NCHS and processed for reporting 
+	purposes. This delay can range from 1 week to 8 weeks or more.</p>
+	
+	<div id="chart" style="text-align:center;">
+		<svg id="page2_svg" width=900 height=600></svg>
+	</div>
+	<div id="page2_tooltip" style='position:absolute'></div>
+
+	<p class="blocktext">
+		<a href="index.html" class="previous"> &laquo; Previous</a>
+		<a href="page2.html" class="next">Next &raquo;</a>
+	</p>
+
+<script>
+
+async function init() {
+
+var svg = d3.select('#page2_svg')
+
+const data = await d3.csv('https://raw.githubusercontent.com/ryanpmurray1/covid19deathsbyrace/master/Provisional_Death_Counts_for_Coronavirus_Disease__COVID-19___Weekly_State-Specific_Data_Updates.csv');
+//console.log(data);
+
+datadeaths = data.filter( function (d) {
+	if (d.Indicator == "Distribution of COVID-19 deaths (%)") {
+		return d };
+});
+
+datapop_unweighted = data.filter( function (d) {
+	if (d.Indicator == "Unweighted distribution of population (%)") {
+		return d };
+});
+
+datapop_weighted = data.filter( function (d) {
+	if (d.Indicator == "Weighted distribution of population (%)") {
+		return d };
+});
+console.log("datadeaths:", datadeaths);
+console.log("datapop_unweighted:", datapop_unweighted);
+
+var races = ["White", "Black", "Hispanic", "Asian", "Native", "Other"];
+var racecolumns = ["Non-Hispanic White", 
+	"Non-Hispanic Black or African American",
+	"Hispanic or Latino",
+	"Non-Hispanic Asian",
+	"Non-Hispanic American Indian or Alaska Native", 
+	"Other"]
+
+var dataclean = Array();
+for (i = 0; i < datadeaths.length ; i++) {
+	for (j = 0; j < racecolumns.length ; j++) {
+		dataclean.push({
+			State: datadeaths[i].State,
+			Race: races[j],
+			Deaths: +datadeaths[i][racecolumns[j]],
+			PopU: +datapop_unweighted[i][racecolumns[j]],
+			PopW: +datapop_weighted[i][racecolumns[j]],
+		});
+	}
+}
+console.log(dataclean);
+
+
+
+var states = d3.map(dataclean, function(d){return(d.State)}).keys();
+
+// Define the margins and dimensions
+topmargin = 50;
+bottommargin = 50;
+leftmargin = 50;
+rightmargin = 50;
+w = 900 - leftmargin - rightmargin;
+h = 500 - topmargin - bottommargin;
+
+// Define the colors
+var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
+
+// Legend parameters
+var legenddata = [
+	{x: +leftmargin+40,		c: colorarray[0], t: "White"},
+	{x: +leftmargin+140,	c: colorarray[1], t: "Black"},
+	{x: +leftmargin+240, 	c: colorarray[2], t: "Hispanic"},
+	{x: +leftmargin+360, 	c: colorarray[3], t: "Asian"},
+	{x: +leftmargin+460, 	c: colorarray[4], t: "Am. Indian or Alaska Native"},
+	{x: +leftmargin+720, 	c: colorarray[5], t: "Other"}]
+
+// Legend circles
+circlerad = 8;
+textoffset = 10;
+yloc = 20;
+textsize = "16px"
+svg.selectAll("legendcircles")
+	.data(legenddata)
+	.enter()
+	.append("circle")
+		.attr("cx", function(d) { return d.x; })
+		.attr("cy", yloc)
+		.attr("r", circlerad)
+		.style("fill", function(d) { return d.c; });
+	
+// Legend text
+svg.selectAll("legendtext")
+	.data(legenddata)
+	.enter()
+	.append("text")
+		.attr("x", function(d) { return d.x + textoffset; })
+		.attr("y", yloc+1)
+		.text(function(d) { return d.t; })
+		.style("font-size", textsize)
+		.style("font-family", "Georgia, serif")
+		.attr("alignment-baseline","middle");
+
+// X-axis (bottom)
+var x = d3.scaleLinear()
+	.domain([0,100])
+	.range([0,w]);
+svg.append("g")
+    .attr("transform","translate("+50+","+(h+50)+")")
+    .style("font", "12px arial")
+	.call(d3.axisBottom(x).ticks(20));
+svg.append("text")
+    .attr("text-anchor", "middle")
+    .attr("x", 450)
+    .attr("y", 500)
+    .style("font-family", "Georgia, serif")
+    .text("Unweighted Distribution of Population (%)");
+
+// X-gridlines
+svg.append("g")			
+	.attr("class", "grid")
+	.attr("transform","translate("+leftmargin+","+(h+50)+")")
+	.call(d3.axisBottom(x).ticks(20).tickSize(-h).tickFormat(""));
+		
+// Y-axis (left)
+var y = d3.scaleLinear()
+	.domain([0,100])
+	.range([h,0]);
+svg.append("g")
+    .attr("transform","translate("+50+","+50+")")
+    .style("font", "12px arial")
+    .call(d3.axisLeft(y).ticks(20));
+svg.append("text")
+	.attr("transform", "rotate(-90)")
+    .attr("y", -5)
+    .attr("x", -245)
+    .attr("dy", "1em")
+    .style("font-family", "Georgia, serif")
+    //.attr("transform", "translate(" + 10 + ", " + h/2 + ")")
+   	.attr("text-anchor", "middle")
+    .text("Distribution of COVID-19 deaths (%)");
+
+// Y-gridlines
+svg.append("g")			
+		.attr("class", "grid")
+		.attr("transform","translate("+leftmargin+","+rightmargin+")")
+		.call(d3.axisLeft(y).ticks(20).tickSize(-w).tickFormat(""));
+
+
+// Diagonal line
+svg.append("line")
+	.attr("transform","translate("+50+","+50+")")
+    .attr('x1',x(0))
+    .attr('x2',x(100))
+    .attr('y1',y(0))
+    .attr('y2',y(100))
+    .style("opacity", 1)
+    .attr("stroke-width", 1)
+    .attr("stroke", "black")
+    .attr("stroke-dasharray", "5,5");
+    
+// Color palette
+var color = d3.scaleOrdinal()
+    .domain(races)
+    .range(colorarray);
+
+// Tooltip
+var tooltip = d3.select("#page2_tooltip")
+    .append("div")
+    .data(dataclean)
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "2px");
+
+// A function that change this tooltip when the user hover a point.
+// Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
+var mouseover = function(d) {
+tooltip
+	.style("opacity", 1)
+	.style("visibility", "visible")
+	.text(d.State);
+}
+
+var mousemove = function(d) {
+tooltip
+  	//.html("This is a tooltip")
+  	//.style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+  	//.style("top", (d3.mouse(this)[1]) + "px");
+	.style("left",(event.pageX)+"px")
+  	.style("top", (event.pageY-800)+"px");
+}
+
+
+// A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+var mouseleave = function(d) {
+tooltip
+  //.transition()
+  //.duration(1000)
+  .style("opacity", 0)
+  .style("visibility", "hidden");
+}
+
+svg.append('g')
+    .selectAll("dot")
+    .data(dataclean)
+    .enter()
+    .append("circle")
+    //.filter(function(d) { return (d.PopU >= 5 & d.Deaths >= 5)})
+		.attr("cx", function (d) { return x(d.PopU)+50; } )
+		.attr("cy", function (d) { return y(d.Deaths)+50; } )
+		.attr("r", 8)
+		.style("fill", function(d) { return color(d.Race); })
+		.style("opacity", 1)
+		.style("stroke", "white")
+  	//.on("mouseover", function(){return tooltip.style("visibility", "visible");})
+  	.on("mouseover", mouseover)
+  	//.on("mousemove", function(){return tooltip.style("top", (event.pageY-800)+"px").style("left",(event.pageX)+"px");})
+  	.on("mousemove", mousemove)
+  	//.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+    .on("mouseout", mouseleave);
+}
+
+
+</script>
+</body>
+</html>

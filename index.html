@@ -1,27 +1,29 @@
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="styles.css">
-  		<h1>COVID-19 Deaths by Race</h1>
-  	</head>
-	
-	<script src='https://d3js.org/d3.v5.min.js'></script>
-	<body onload='init()'>
-	
-		<p class="blocktext">REPLACE ME! Number of deaths reported in this table are the 
-		total number of deaths received and coded as of the date of analysis, and do not 
-		represent all deaths that occurred in that period. Data during this period are 
-		incomplete because of the lag in time between when the death occurred and when 
-		the death certificate is completed, submitted to NCHS and processed for reporting 
-		purposes. This delay can range from 1 week to 8 weeks or more.</p>
-		
-		<div id="chart" style="text-align:center;">
-			<svg width=900 height=600></svg>
-		</div>
+<script src='https://d3js.org/d3.v5.min.js'></script>
 
-		<p class="blocktext">
-		<a href="#" class="previous">&laquo; Previous</a>
-		<a href="#" class="next">Next &raquo;</a>
-		</p>
+<head>
+	<title>COVID-19 Deaths by Race</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<h1>COVID-19 Deaths by Race</h1>
+</head>
+
+
+<body onload='init()'>
+
+	<p class="blocktext">REPLACE ME! Number of deaths reported in this table are the 
+	total number of deaths received and coded as of the date of analysis, and do not 
+	represent all deaths that occurred in that period. Data during this period are 
+	incomplete because of the lag in time between when the death occurred and when 
+	the death certificate is completed, submitted to NCHS and processed for reporting 
+	purposes. This delay can range from 1 week to 8 weeks or more.</p>
+	
+	<div id="chart" style="text-align:center;">
+		<svg id="page1_svg" width=900 height=600></svg>
+	</div>
+
+	<p class="blocktext">
+		<a href="page2.html" class="next">Next &raquo;</a>
+	</p>
 
 <script>
 
@@ -35,30 +37,19 @@ dataclean = data.filter( function (d) {
 });
 console.log(dataclean);
 
-var subgroups = data.columns.slice(3,9);
-console.log(subgroups);
-var groups = d3.map(dataclean, function(d){return(d.State)}).keys();
-console.log(groups);
-
-var datacols = [
-	'Non-Hispanic White',
-	'Non-Hispanic Black or African American',
-	'Hispanic or Latino',
-	'Non-Hispanic Asian',
-	'Non-Hispanic American Indian or Alaska Native',
-	'Other' ];
-xvar = 'State';
-yvar = 'Non-Hispanic White';
-rowselect = 'Indicator';
+var races = data.columns.slice(3,9);
+console.log(races);
+var states = d3.map(dataclean, function(d){return(d.State)}).keys();
+console.log(states);
 
 // Convert columns to numeric
 dataclean.forEach(function(d) {
-	d[datacols[0]] = +d[datacols[0]]
-	d[datacols[1]] = +d[datacols[1]]
-	d[datacols[2]] = +d[datacols[2]]
-	d[datacols[3]] = +d[datacols[3]]
-	d[datacols[4]] = +d[datacols[4]]
-	d[datacols[5]] = +d[datacols[5]];
+	d[races[0]] = +d[races[0]]
+	d[races[1]] = +d[races[1]]
+	d[races[2]] = +d[races[2]]
+	d[races[3]] = +d[races[3]]
+	d[races[4]] = +d[races[4]]
+	d[races[5]] = +d[races[5]];
 });
 
 // Define the margins and dimensions
@@ -66,7 +57,6 @@ topmargin = 50;
 bottommargin = 50;
 leftmargin = 50;
 rightmargin = 50;
-
 w = 900 - leftmargin - rightmargin;
 h = 500 - topmargin - bottommargin;
 
@@ -81,12 +71,12 @@ var legenddata = [
 	{x: +leftmargin+360, 	c: colorarray[3], t: "Asian"},
 	{x: +leftmargin+460, 	c: colorarray[4], t: "Am. Indian or Alaska Native"},
 	{x: +leftmargin+720, 	c: colorarray[5], t: "Other"}]
+
+// Legend circles
 circlerad = 8;
 textoffset = 10;
 yloc = 20;
-textsize = "17px"
-
-// Legend circles
+textsize = "16px"
 d3.select('svg')
 	.selectAll("circle")
 	.data(legenddata)
@@ -102,36 +92,18 @@ d3.select('svg')
 	.data(legenddata)
 	.enter().append("text")
 		.attr("x", function(d) { return d.x + textoffset; })
-		.attr("y", yloc)
+		.attr("y", yloc+1)
 		.text(function(d) { return d.t; })
 		.style("font-size", textsize)
+		.style("font-family", "Georgia, serif")
 		.attr("alignment-baseline","middle");
 
-
+// X-axis (bottom)
 var xdomain = dataclean.map(function(d) { return d.State}).keys();
 console.log("xdomain:");
 console.log(xdomain);
-
-ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
-{ 
-	if (d.State != "United States") {
-		sumtotal = d['Non-Hispanic White'] +
-			d['Non-Hispanic Black or African American'] +
-			d['Hispanic or Latino'] +
-			d['Non-Hispanic Asian'] +
-			d['Non-Hispanic American Indian or Alaska Native'] +
-			d['Other'];
-		console.log(sumtotal);
-		return sumtotal;
-	} else { return 0; }
-})/1000)*1000];
-console.log("ydomain:");
-console.log(ydomain);
-
-
-// X-axis (bottom)
 var x = d3.scaleBand()
-	.domain(groups)
+	.domain(states)
 	.range([0,w])
 	.padding(0.2);
 d3.select('svg')
@@ -144,12 +116,21 @@ d3.select('svg')
     	.style("font-size", "12px");
 
 // Y-axis (left)
+ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
+{ 
+	if (d.State != "United States") {
+		return d[races[0]] + d[races[1]] + d[races[2]] + d[races[3]] + d[races[4]] + d[races[5]];
+	} else { return 0; }
+})/1000)*1000];
+console.log("ydomain:");
+console.log(ydomain);
 var y = d3.scaleLinear()
 	.domain(ydomain)
 	.range([h,0]);
 d3.select('svg')
     .append("g")
     .attr("transform","translate("+50+","+50+")")
+    .style("font", "12px arial")
     .call(d3.axisLeft(y).ticks(20));
     
 // Y-axis (right)
@@ -159,6 +140,7 @@ var y = d3.scaleLinear()
 d3.select('svg')
     .append("g")
     .attr("transform","translate("+850+","+50+")")
+    .style("font", "12px arial")
     .call(d3.axisRight(y).ticks(20));
 
 // Y-gridlines
@@ -168,14 +150,14 @@ d3.select('svg')
 		.attr("transform","translate("+leftmargin+","+rightmargin+")")
 		.call(d3.axisLeft(y).ticks(20).tickSize(-w).tickFormat(""));
   
-// color palette = one color per subgroup
+// Color palette
 var color = d3.scaleOrdinal()
-    .domain(subgroups)
+    .domain(races)
     .range(colorarray);
     
 // Stack the data
 var stackedData = d3.stack()
-	.keys(subgroups)
+	.keys(races)
 	(dataclean);
 
 console.log(stackedData)
@@ -216,22 +198,22 @@ usdata = data.filter( function (d) {
 
 // Convert columns to numeric
 usdata.forEach(function(d) {
-	d[datacols[0]] = +d[datacols[0]]
-	d[datacols[1]] = +d[datacols[1]]
-	d[datacols[2]] = +d[datacols[2]]
-	d[datacols[3]] = +d[datacols[3]]
-	d[datacols[4]] = +d[datacols[4]]
-	d[datacols[5]] = +d[datacols[5]];
+	d[races[0]] = +d[races[0]]
+	d[races[1]] = +d[races[1]]
+	d[races[2]] = +d[races[2]]
+	d[races[3]] = +d[races[3]]
+	d[races[4]] = +d[races[4]]
+	d[races[5]] = +d[races[5]];
 });
 
 // Calculate the total U.S. deaths
 console.log(usdata);
-totaldeaths = usdata[0]['Non-Hispanic White'] +
-	usdata[0]['Non-Hispanic Black or African American'] +
-	usdata[0]['Hispanic or Latino'] +
-	usdata[0]['Non-Hispanic Asian'] +
-	usdata[0]['Non-Hispanic American Indian or Alaska Native'] +
-	usdata[0]['Other'];
+totaldeaths = usdata[0][races[0]] +
+	usdata[0][races[1]] +
+	usdata[0][races[2]] +
+	usdata[0][races[3]] +
+	usdata[0][races[4]] +
+	usdata[0][races[5]];
 
 // Display the Total U.S. Deaths text
 d3.select('svg')
@@ -245,6 +227,7 @@ d3.select('svg')
 		//.text(function(d) { return "TOTAL U.S. DEATHS:"; })
 		.text("Total U.S. Deaths: " + totaldeaths)
 		.style("font-size", "25px")
+		.style("font-family", "Georgia, serif")
 		.attr("alignment-baseline","middle")
 		//.delay(function(d,i){console.log(i) ; return(i*10)});
     
@@ -272,7 +255,7 @@ d3.select('svg')
   	.delay(function(d,i){console.log(i) ; return(i*50)});*/
   	
 // Annotation text for NYC
-d3.select('svg')
+/*d3.select('svg')
 	.selectAll("text")
 	.data(data)
 	.enter().append("text")
@@ -291,10 +274,11 @@ d3.select('svg')
 		.attr("y", yloc)
 		.text(function(d) { return d.t; })
 		.style("font-size", textsize)
-		.attr("alignment-baseline","middle");
+		.attr("alignment-baseline","middle");*/
 
 
 }
+
 </script>
 </body>
 </html>
