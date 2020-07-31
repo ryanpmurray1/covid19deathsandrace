@@ -24,7 +24,7 @@
 
 	<p class="blocktext">
 		<a href="index.html" class="previous"> &laquo; Previous</a>
-		<a href="page2.html" class="next">Next &raquo;</a>
+		<a href="page3.html" class="next">Next &raquo;</a>
 	</p>
 
 <script>
@@ -50,8 +50,8 @@ datapop_weighted = data.filter( function (d) {
 	if (d.Indicator == "Weighted distribution of population (%)") {
 		return d };
 });
-console.log("datadeaths:", datadeaths);
-console.log("datapop_unweighted:", datapop_unweighted);
+//console.log("datadeaths:", datadeaths);
+//console.log("datapop_unweighted:", datapop_unweighted);
 
 var races = ["White", "Black", "Hispanic", "Asian", "Native", "Other"];
 var racecolumns = ["Non-Hispanic White", 
@@ -73,7 +73,7 @@ for (i = 0; i < datadeaths.length ; i++) {
 		});
 	}
 }
-console.log(dataclean);
+console.log("dataclean:", dataclean);
 
 
 
@@ -196,14 +196,13 @@ var tooltip = d3.select("#page2_tooltip")
     .style("visibility", "hidden")
     .style("opacity", 0)
     .attr("class", "tooltip")
-    .style("background-color", "white")
-    .style("border", "solid")
-    .style("border-width", "1px")
-    .style("border-radius", "5px")
-    .style("padding", "2px");
+    //.style("background-color", "white")
+    //.style("border", "solid")
+    //.style("border-width", "1px")
+    //.style("border-radius", "5px")
+    //.style("padding", "2px");
 
-// A function that change this tooltip when the user hover a point.
-// Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
+// Mouseover Tooltip
 var mouseover = function(d) {
 tooltip
 	.style("opacity", 1)
@@ -211,25 +210,21 @@ tooltip
 	.text(d.State);
 }
 
+// Mousemove Tooltip
 var mousemove = function(d) {
 tooltip
-  	//.html("This is a tooltip")
-  	//.style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-  	//.style("top", (d3.mouse(this)[1]) + "px");
 	.style("left",(event.pageX)+"px")
   	.style("top", (event.pageY-800)+"px");
 }
 
-
-// A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+// Mouseleave Tooltip
 var mouseleave = function(d) {
 tooltip
-  //.transition()
-  //.duration(1000)
   .style("opacity", 0)
   .style("visibility", "hidden");
 }
 
+// Scatter Plot
 svg.append('g')
     .selectAll("dot")
     .data(dataclean)
@@ -242,11 +237,8 @@ svg.append('g')
 		.style("fill", function(d) { return color(d.Race); })
 		.style("opacity", 1)
 		.style("stroke", "white")
-  	//.on("mouseover", function(){return tooltip.style("visibility", "visible");})
   	.on("mouseover", mouseover)
-  	//.on("mousemove", function(){return tooltip.style("top", (event.pageY-800)+"px").style("left",(event.pageX)+"px");})
   	.on("mousemove", mousemove)
-  	//.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
     .on("mouseout", mouseleave);
 }
 

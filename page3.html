@@ -1,0 +1,304 @@
+<html>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+
+<head>
+	<title>COVID-19 Deaths by Race</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<h1>COVID-19 Deaths by Race</h1>
+</head>
+
+
+<body onload='init()'>
+
+	<p class="blocktext">REPLACE ME! Number of deaths reported in this table are the 
+	total number of deaths received and coded as of the date of analysis, and do not 
+	represent all deaths that occurred in that period. Data during this period are 
+	incomplete because of the lag in time between when the death occurred and when 
+	the death certificate is completed, submitted to NCHS and processed for reporting 
+	purposes. This delay can range from 1 week to 8 weeks or more.</p>
+	
+	<div id="chart" style="text-align:center;">
+		<svg id="page3_svg" width=900 height=600></svg>
+	</div>
+
+	<p class="blocktext">
+		<a href="page2.html" class="previous"> &laquo; Previous</a>
+	</p>
+
+<script>
+
+async function init() {
+
+var svg = d3.select('#page3_svg')
+
+const data = await d3.csv('https://raw.githubusercontent.com/ryanpmurray1/covid19deathsbyrace/master/Provisional_Death_Counts_for_Coronavirus_Disease__COVID-19___Weekly_State-Specific_Data_Updates.csv');
+
+/*dataclean = data.filter( function (d) {
+	if (d.Indicator != "Count of COVID-19 deaths") {
+		return d };
+});
+console.log("dataclean:", dataclean);
+
+//var races = data.columns.slice(3,9);
+var races = ["Non-Hispanic White", 
+	"Non-Hispanic Black or African American",
+	"Hispanic or Latino",
+	"Non-Hispanic Asian",
+	"Non-Hispanic American Indian or Alaska Native", 
+	"Other"];
+console.log("races:", races);
+var states = d3.map(dataclean, function(d){return(d.State)}).keys();
+console.log("states:", states);
+
+
+
+// Convert columns to numeric
+dataclean.forEach(function(d) {
+	d[races[0]] = +d[races[0]]
+	d[races[1]] = +d[races[1]]
+	d[races[2]] = +d[races[2]]
+	d[races[3]] = +d[races[3]]
+	d[races[4]] = +d[races[4]]
+	d[races[5]] = +d[races[5]];
+});*/
+
+datadeaths = data.filter( function (d) {
+	if (d.Indicator == "Distribution of COVID-19 deaths (%)") {
+		return d };
+});
+
+datapop_unweighted = data.filter( function (d) {
+	if (d.Indicator == "Unweighted distribution of population (%)") {
+		return d };
+});
+
+datapop_weighted = data.filter( function (d) {
+	if (d.Indicator == "Weighted distribution of population (%)") {
+		return d };
+});
+//console.log("datadeaths:", datadeaths);
+//console.log("datapop_unweighted:", datapop_unweighted);
+
+var races = ["White", "Black", "Hispanic", "Asian", "Native", "Other"];
+var racecolumns = ["Non-Hispanic White", 
+	"Non-Hispanic Black or African American",
+	"Hispanic or Latino",
+	"Non-Hispanic Asian",
+	"Non-Hispanic American Indian or Alaska Native", 
+	"Other"]
+
+var dataclean = Array();
+for (i = 0; i < datadeaths.length ; i++) {
+	for (j = 0; j < racecolumns.length ; j++) {
+		dataclean.push({
+			State: datadeaths[i].State,
+			Race: races[j],
+			Deaths: +datadeaths[i][racecolumns[j]],
+			PopU: +datapop_unweighted[i][racecolumns[j]],
+			PopW: +datapop_weighted[i][racecolumns[j]],
+		});
+	}
+}
+console.log("dataclean:", dataclean);
+
+/*var subgroups = d3.map(dataclean, function(d){
+		return(d.Indicator)
+	}).keys()*/
+//var subgroups = ["Deaths", "PopU", "PopW"];
+var subgroups = ["Deaths", "PopU"];
+//var subgroups2 = ["Race", "Deaths", "PopU"];
+//var subgroups = d3.keys(dataclean[0]);
+console.log("subgroups:", subgroups);
+
+// Define the margins and dimensions
+topmargin = 50;
+bottommargin = 50;
+leftmargin = 50;
+rightmargin = 50;
+w = 900 - leftmargin - rightmargin;
+h = 500 - topmargin - bottommargin;
+
+// Define the colors
+var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
+/*
+// Legend parameters
+var legenddata = [
+	{x: +leftmargin+40,		c: colorarray[0], t: "White"},
+	{x: +leftmargin+140,	c: colorarray[1], t: "Black"},
+	{x: +leftmargin+240, 	c: colorarray[2], t: "Hispanic"},
+	{x: +leftmargin+360, 	c: colorarray[3], t: "Asian"},
+	{x: +leftmargin+460, 	c: colorarray[4], t: "Am. Indian or Alaska Native"},
+	{x: +leftmargin+720, 	c: colorarray[5], t: "Other"}]
+
+
+// Legend circles
+circlerad = 8;
+textoffset = 10;
+yloc = 20;
+textsize = "16px"
+d3.select('svg')
+	.selectAll("circle")
+	.data(legenddata)
+	.enter().append("circle")
+    	.attr("cx", function(d) { return d.x; })
+		.attr("cy", yloc)
+		.attr("r", circlerad)
+		.style("fill", function(d) { return d.c; });
+
+// Legend text
+d3.select('svg')
+	.selectAll("text")
+	.data(legenddata)
+	.enter().append("text")
+		.attr("x", function(d) { return d.x + textoffset; })
+		.attr("y", yloc+1)
+		.text(function(d) { return d.t; })
+		.style("font-size", textsize)
+		.style("font-family", "Georgia, serif")
+		.attr("alignment-baseline","middle");
+
+*/
+// X-axis (bottom)
+//var xdomain = dataclean.map(function(d) { return d.Races}).keys();
+//console.log("xdomain:", xdomain);
+
+var x = d3.scaleBand()
+	.domain(races)
+	.range([0,w])
+	.padding(0.2);
+svg.append("g")
+    .attr("transform","translate("+50+","+(h+50)+")")
+	.call(d3.axisBottom(x))
+    .selectAll("text")
+    	//.attr("transform", "translate(-10,0)rotate(-45)")
+    	.attr("transform", "translate(0,20)")
+    	//.style("text-anchor", "start")
+    	.style("font-size", "12px");
+    	
+
+var xSubgroup = d3.scaleBand()
+    .domain(subgroups)
+    .range([0, x.bandwidth()])
+    .padding([0.05])
+svg.append("g")
+	.attr("transform","translate("+50+","+(h+50)+")")
+    .call(d3.axisBottom(xSubgroup))
+    .selectAll("text")
+    	//.attr("transform", "translate(-10,0)rotate(-45)")
+    	.attr("transform", "translate(25,0)")
+    	//.style("text-anchor", "start")
+    	.style("font-size", "12px");
+svg.append("g")
+	.attr("transform","translate("+50+","+(h+50)+")")
+    .call(d3.axisBottom(xSubgroup))
+    .selectAll("text")
+    	//.attr("transform", "translate(-10,0)rotate(-45)")
+    	.attr("transform", "translate(155,0)")
+    	//.style("text-anchor", "start")
+    	.style("font-size", "12px");
+
+
+// Y-axis (left)
+ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
+{ 
+	if (d.State != "United States") {
+		return d[races[0]] + d[races[1]] + d[races[2]] + d[races[3]] + d[races[4]] + d[races[5]];
+	} else { return 0; }
+})/1000)*1000];
+//console.log("ydomain:", ydomain);
+
+var y = d3.scaleLinear()
+	.domain([0,100])
+	.range([h,0]);
+svg.append("g")
+    .attr("transform","translate("+50+","+50+")")
+    .style("font", "12px arial")
+    .call(d3.axisLeft(y).ticks(20));
+svg.append("text")
+	.attr("transform", "rotate(-90)")
+    .attr("y", -5)
+    .attr("x", -245)
+    .attr("dy", "1em")
+    .style("font-family", "Georgia, serif")
+    //.attr("transform", "translate(" + 10 + ", " + h/2 + ")")
+   	.attr("text-anchor", "middle")
+    .text("Percentage of Total (%)");
+    
+// Y-axis (right)
+var y = d3.scaleLinear()
+	.domain([0,100])
+	.range([h,0]);
+svg.append("g")
+    .attr("transform","translate("+850+","+50+")")
+    .style("font", "12px arial")
+    .call(d3.axisRight(y).ticks(20));
+
+// Y-gridlines
+svg.append("g")			
+		.attr("class", "grid")
+		.attr("transform","translate("+leftmargin+","+rightmargin+")")
+		.call(d3.axisLeft(y).ticks(20).tickSize(-w).tickFormat(""));
+  
+// Color palette
+var colorarray2 = ['#003f5c','blue', '#ffa600', 'orange','#444e86', 'purple','#ff6e54', 'pink', '#955196', 'black', '#dd5182', 'red'];
+var races2 = ['White_Deaths', 'White_PopU']
+var color = d3.scaleOrdinal()
+    .domain(races)
+    .range(colorarray);
+console.log("colorarray2:", colorarray2);
+
+dataclean = dataclean.filter( function (d) {
+	if (d.State == "United States") {
+		return d };
+});
+console.log("dataclean:", dataclean)
+
+//test = function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); };
+//console.log("test:", test);
+
+// Show the bars
+svg.append("g").selectAll("g")
+    // Enter in data = loop group per group
+    .data(dataclean)
+    //.filter(function(d) { return (d.State == "United States");})
+    .enter().append("g")
+      	.attr("transform", function(d) { return "translate(" + (leftmargin + x(d.Race)) + ",50)"; })
+      	.attr("fill", function(d) { console.log(d.Race + "_" + subgroups[1]); return color(d.Race); })
+    	.selectAll("rect")
+    		.data(function(d) { 
+    		console.log("Outer:", d.Race);
+    		return subgroups.map(function(key) { 
+    			console.log("Inner:", {key: key, value: d[key]});
+    			return {key: key, value: d[key]}; }); 
+    		})
+    		.attr("fill", function(d) { console.log(d.Race + "_" + d.key); return color(d.Race + "_" + subgroups[1]); })
+			.enter().append("rect")
+				.attr("x", function(d) { return xSubgroup(d.key); })
+				//.attr("y", function(d) { return y(d.value); })
+				.attr("y", function(d) { return y(0); })
+				.attr("width", xSubgroup.bandwidth())
+				//.attr("height", function(d) { return h - y(d.value); })
+				.attr("height", function(d) { return h-y(0); })
+				//.attr("fill", function(d, i) { console.log(d); return color("White" + "_" + d.key); })
+				.attr("border", "solid")
+				.attr("border-width", "1px")
+				.attr("opacity", function(d, i) {
+					if (i == 0) {return 1;}
+					else {return 0.5;}
+					})
+
+// Create the animated effect
+svg.selectAll("rect")
+  	.transition()
+  	.duration(2000)
+  	//.attr("y", function(d) { return y(d[1]); })
+  	.attr("y", function(d) { return y(d.value); })
+  	//.attr("height", function(d) { return y(d[0]) - y(d[1]); })
+  	.attr("height", function(d) { return h - y(d.value); })
+  	.delay(function(d,i){console.log(i) ; return(i*50)});
+
+}
+
+</script>
+</body>
+</html>

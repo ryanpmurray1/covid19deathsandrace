@@ -2,6 +2,10 @@ h1 {
 	text-align:center;
 	font-family: Georgia, serif;
 }
+h4 {
+	text-align:center;
+	font-family: Georgia, serif;
+}
 
 body {
 	font-family: Georgia, serif;
@@ -74,4 +78,15 @@ a:hover {
 	color: white;
 	float: right;
 	border-radius: 10%;
+}
+
+div.tooltip {
+    background-color: white;
+    border: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 2px;
+    font: 14px Georgia, serif;
+	position: absolute;
+	white-space: nowrap;
 }
