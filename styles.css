@@ -11,9 +11,20 @@ h4 {
 	font-family: Georgia, serif;
 }
 
+hr {
+	color:black;
+	background-color:gray;
+	width:950px;
+	margin:auto;
+	display: block;
+	border-width: 1px;
+}
+
+
+
 body {
 	font-family: Georgia, serif;
-	font-size: 16px;
+	font-size: 14px;
 }
 
 P.blocktext {
@@ -33,7 +44,7 @@ div {
 	/*display: flex;*/
 	align-items: center;
 	text-align:center;
-	align: center
+	align: center;
 }
 
 svg {

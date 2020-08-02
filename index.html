@@ -5,6 +5,7 @@
 	<title>COVID-19 Deaths by Race</title>
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<h1>COVID-19 Deaths by Race</h1>
+	<div align="center" style="text-align:center; font-weight:bold; align-items=center;"><hr></div>
 	<h3>Is race a factor in COVID-19 deaths in the United States?</h3>
 </head>
 
@@ -13,30 +14,22 @@
 
 	<p class="blocktext">
 	It has been widely stated that the COVID-19 virus does not discriminate. 
-	However, at least in the United States, it has been suggested that a disproportionate number 
-	of minorities have been dying from the disease. Let's investigate the data to see if this claim
-	is supported...
+	However, at least in the United States, it has been suggested that a disproportionate number of minorities have been dying from the disease. Let's investigate the data to see if this claim is supported...
 	<br><br>
-	The bar chart below details the total deaths in each state plus the District of Columbia. The minimum
-	number of deaths is 100, so therefore some states are excluded from the dataset (Alaska, Hawaii, 
-	Montana, Vermont, Wyoming). Also note that due to the number of deaths in New York City, it is listed
-	separately form New York state.
+	The bar chart below details the total deaths in each state plus the District of Columbia. The minimum number of deaths is 100, so therefore some states are excluded from the dataset (Alaska, Hawaii, Montana, Vermont, Wyoming). Additionally, if a race has less than 10 deaths in a state, it is also ommitted in accordance iwth confidentiality standards. Note that due to the number of deaths in New York City, it is listed separately form New York state.
 	<br><br>
-	The chart appears to show that a large number of Black and Hispanic people are dying from COVID-19
-	in the states of California, Illinois, Louisiana, Michigan, Texas and in New York City.
+	The chart appears to show that a large number of Black and Hispanic people are dying from COVID-19 in the states of California, Illinois, Louisiana, Michigan, Texas and in New York City.
 	</p>
 	
 	<div id="chart" style="text-align:center;">
-		<svg id="page1_svg" width=900 height=575></svg>
+		<svg id="page1_svg" width=900 height=540></svg>
 	</div>
 
 	<p class="blocktext">
 		<a href="page2.html" class="next">Next &raquo;</a>
 	</p>
 
-    <p class="footer">
-        <br><br><br>Data source: <a href="https://data.cdc.gov/NCHS/Provisional-Death-Counts-for-Coronavirus-Disease-C/pj7m-y5uh" target="_blank">Centers for Disease Control and Prevention</a> (data updated: 07/22/2020)
-    </p>
+
 <script>
 
 async function init() {
@@ -136,6 +129,8 @@ svg.append("g")
     	.style("font-size", "12px")
     	.style("font-family", "Georgia, serif");
 
+formatValue = d3.format("~s");
+
 // Y-axis (left)
 ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
 { 
@@ -147,13 +142,20 @@ ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
 var y = d3.scaleLinear()
 	.domain(ydomain)
 	.range([h,0]);
-svg
-    .append("g")
+svg.append("g")
     .attr("transform","translate("+50+","+50+")")
-    .style("font", "12px arial")
+    .style("font-size", "12px")
     .style("font-family", "Georgia, serif")
-    .call(d3.axisLeft(y).ticks(20));
-    
+    .call(d3.axisLeft(y).ticks(20).tickFormat(function(d) { return formatValue(d);}));
+svg.append("text")
+	.attr("transform", "rotate(-90)")
+    .attr("y", 0)
+    .attr("x", -245)
+    .attr("dy", "1em")
+    .style("font-family", "Georgia, serif")
+   	.attr("text-anchor", "middle")
+    .text("Total COVID-19 deaths by state");
+
 // Y-axis (right)
 var y = d3.scaleLinear()
 	.domain(ydomain)
@@ -163,7 +165,7 @@ svg
     .attr("transform","translate("+850+","+50+")")
     .style("font", "12px arial")
     .style("font-family", "Georgia, serif")
-    .call(d3.axisRight(y).ticks(20));
+    .call(d3.axisRight(y).ticks(20).tickFormat(function(d) { return formatValue(d);}));
 
 // Y-gridlines
 svg
@@ -237,12 +239,14 @@ totaldeaths =
 
 // Annotation: Text for Total U.S. Deaths
 svg.append("text")
-	.attr("x", 300)
-	.attr("y", 550)
+	//.attr("x", 300)
+	//.attr("y", 550)
+	.attr("x", 125)
+	.attr("y", 100)
 	.text("Total U.S. Deaths: " + totaldeaths)
-	.style("font-size", "25px")
+	.style("font-size", "30px")
 	.style("font-family", "Georgia, serif")
-	.style("fill", "white")
+	.style("fill", "none")
 	.attr("alignment-baseline","middle")
 	.transition()
 	.delay(11000)

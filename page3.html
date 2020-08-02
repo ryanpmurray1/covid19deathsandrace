@@ -5,18 +5,21 @@
 	<title>COVID-19 Deaths by Race</title>
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<h1>COVID-19 Deaths by Race</h1>
+    <div align="center" style="text-align:center; font-weight:bold; align-items=center;"><hr></div>
     <h3>Let's take a closer look...</h4>
 </head>
 
 
 <body onload='init()'>
 
-	<p class="blocktext">REPLACE ME! Number of deaths reported in this table are the 
-	total number of deaths received and coded as of the date of analysis, and do not 
-	represent all deaths that occurred in that period. Data during this period are 
-	incomplete because of the lag in time between when the death occurred and when 
-	the death certificate is completed, submitted to NCHS and processed for reporting 
-	purposes. This delay can range from 1 week to 8 weeks or more.</p>
+	<p class="blocktext">
+    The bar chart below presents the data from the previous slide to allow side by side comparisons for each state. The first bar in each pair represents the percentage of total deaths for that race, while the second bar in each pair represents the percentage of total population for that race.
+    <br><br>
+    In the United States overall, 22.6% of all COVID-19 deaths are Black, while they only make up 12.5% of the population. Looking closer at the states discovered in the previous page, it is revealed that Michigan (27.8%), District of Columbia (27.3%), Missouri (22.8), Louisiana (20%), and South Carolina (18.9%) have the largest disproportionate number of COVID-19 deaths for Blacks. Additionally, New Mexico (50.9%) has the largest disproportionate number of COVID-19 deaths overall and for American Indians/Alaska Natives.
+    <p class="blocktext" style="font-weight:bold;">
+        Select a different state from the dropdown list to view it's specific data. Can you identify any other states where minorities are dying from COVID-19 at a disproportionate rate?
+    </p>
+    </p>
 	
 	<!--
 	<div id="popButton">
@@ -35,6 +38,10 @@
 	<p class="blocktext">
 		<a href="page2.html" class="previous"> &laquo; Previous</a>
 	</p>
+
+    <p class="footer">
+        <br><br><br><br>Data source: <a href="https://data.cdc.gov/NCHS/Provisional-Death-Counts-for-Coronavirus-Disease-C/pj7m-y5uh" target="_blank">Centers for Disease Control and Prevention</a> (data updated: 07/22/2020)
+    </p>
 
 <script>
 
@@ -144,7 +151,7 @@ svg.append("text")
     .attr("x", 450)
     .attr("y", 500)
     .style("font-family", "Georgia, serif")
-    .text("Each bar pair represents \"% of Total Deaths\" vs. \"% of Total Population\" per race");
+    .text("Each bar pair represents \"% of Total COVID-19 Deaths\" and \"% of Total Population\" per race");
     	
 // X-axis subgroup (bottom)
 var xSubgroup = d3.scaleBand()
@@ -180,7 +187,7 @@ svg.append("g")
     .call(d3.axisLeft(y).ticks(20));
 svg.append("text")
 	.attr("transform", "rotate(-90)")
-    .attr("y", -5)
+    .attr("y", 0)
     .attr("x", -245)
     .attr("dy", "1em")
     .style("font-family", "Georgia, serif")
@@ -297,21 +304,6 @@ function showBars(datafiltered, newstate) {
             .attr("y", function(d) { return y(d.value); })
             .attr("height", function(d) { return h - y(d.value); })
             .attr("width", xSubgroup.bandwidth());
-
-        /*
-        //svg.selectAll("rect")
-        rects.enter().append("rect")
-            .attr("width", xSubgroup.bandwidth())
-            .attr("x", function(d) { console.log("x:", d); return xSubgroup(d.key); })
-            .attr("y", function(d) { return y(0); })
-            .attr("height", function(d) { console.log(d); return h - y(0); })
-            .transition()
-            .duration(1000)
-            .attr("x", function(d) { console.log("new d.key", d.key); return xSubgroup(d.key); })
-            .attr("y", function(d) { console.log("new d.value", d.value); return y(d.value); })
-            .attr("height", function(d) { return h - y(d.value); })
-            .attr("width", xSubgroup.bandwidth());
-        */
     } else {
         rects.enter().append("rect")
             .attr("width", xSubgroup.bandwidth())
