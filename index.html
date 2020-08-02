@@ -5,7 +5,7 @@
 	<title>COVID-19 Deaths by Race</title>
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<h1>COVID-19 Deaths by Race</h1>
-	<h3>Total U.S. Deaths</h3>
+	<h3>How many people have died from COVID-19 in the United States?</h3>
 </head>
 
 
@@ -19,15 +19,15 @@
 	purposes. This delay can range from 1 week to 8 weeks or more.</p>
 	
 	<div id="chart" style="text-align:center;">
-		<svg id="page1_svg" width=900 height=600></svg>
+		<svg id="page1_svg" width=900 height=575></svg>
 	</div>
 
 	<p class="blocktext">
 		<a href="page2.html" class="next">Next &raquo;</a>
 	</p>
 
-    <p class="blocktext">
-        <br><br><br>Data source: <a href="https://data.cdc.gov/NCHS/Provisional-Death-Counts-for-Coronavirus-Disease-C/pj7m-y5uh" >Centers for Disease Control and Prevention</a> (data updated: 07/22/2020)
+    <p class="footer">
+        <br><br><br>Data source: <a href="https://data.cdc.gov/NCHS/Provisional-Death-Counts-for-Coronavirus-Disease-C/pj7m-y5uh" target="_blank">Centers for Disease Control and Prevention</a> (data updated: 07/22/2020)
     </p>
 <script>
 
@@ -122,7 +122,8 @@ d3.select('svg')
     .selectAll("text")
     	.attr("transform", "translate(-10,0)rotate(-45)")
     	.style("text-anchor", "end")
-    	.style("font-size", "12px");
+    	.style("font-size", "12px")
+    	.style("font-family", "Georgia, serif");
 
 // Y-axis (left)
 ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
@@ -139,6 +140,7 @@ d3.select('svg')
     .append("g")
     .attr("transform","translate("+50+","+50+")")
     .style("font", "12px arial")
+    .style("font-family", "Georgia, serif")
     .call(d3.axisLeft(y).ticks(20));
     
 // Y-axis (right)
@@ -149,6 +151,7 @@ d3.select('svg')
     .append("g")
     .attr("transform","translate("+850+","+50+")")
     .style("font", "12px arial")
+    .style("font-family", "Georgia, serif")
     .call(d3.axisRight(y).ticks(20));
 
 // Y-gridlines

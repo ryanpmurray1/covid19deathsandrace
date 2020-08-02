@@ -5,6 +5,7 @@
 	<title>COVID-19 Deaths by Race</title>
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<h1>COVID-19 Deaths by Race</h1>
+	<h3>In which states is COVID-19 disproportionately killing more members of a particular race?</h3>
 </head>
 
 
@@ -18,7 +19,7 @@
 	purposes. This delay can range from 1 week to 8 weeks or more.</p>
 	
 	<div id="chart" style="text-align:center;">
-		<svg id="page2_svg" width=900 height=600></svg>
+		<svg id="page2_svg" width=900 height=510></svg>
 	</div>
 	<div id="page2_tooltip" style='position:absolute'></div>
 
@@ -132,13 +133,14 @@ var x = d3.scaleLinear()
 svg.append("g")
     .attr("transform","translate("+50+","+(h+50)+")")
     .style("font", "12px arial")
+    .style("font-family", "Georgia, serif")
 	.call(d3.axisBottom(x).ticks(20));
 svg.append("text")
     .attr("text-anchor", "middle")
     .attr("x", 450)
     .attr("y", 500)
     .style("font-family", "Georgia, serif")
-    .text("Unweighted Distribution of Population (%)");
+    .text("Distribution of Population (%)");
 
 // X-gridlines
 svg.append("g")			
@@ -153,6 +155,7 @@ var y = d3.scaleLinear()
 svg.append("g")
     .attr("transform","translate("+50+","+50+")")
     .style("font", "12px arial")
+    .style("font-family", "Georgia, serif")
     .call(d3.axisLeft(y).ticks(20));
 svg.append("text")
 	.attr("transform", "rotate(-90)")
