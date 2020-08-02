@@ -1,1 +1,1 @@
-# Covid-19 Deaths by Race
+COVID-19 Deaths and Race
