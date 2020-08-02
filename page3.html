@@ -40,11 +40,10 @@
 
 async function init() {
 
-
-
+// Get the data
 const data = await d3.csv('https://raw.githubusercontent.com/ryanpmurray1/covid19deathsbyrace/master/Provisional_Death_Counts_for_Coronavirus_Disease__COVID-19___Weekly_State-Specific_Data_Updates.csv');
 
-
+// Data cleaning
 datadeaths = data.filter( function (d) {
 	if (d.Indicator == "Distribution of COVID-19 deaths (%)") {
 		return d };
@@ -71,14 +70,17 @@ var racecolumns = ["Non-Hispanic White",
 	"Other"]
 
 
+// Create the subgroups for the X-axis
 var subgroups = ["Deaths", "Pop"];
 console.log("subgroups:", subgroups);
 
+// Create the states array for the select button
 var states = Array();
 for (i = 0; i < datadeaths.length ; i++) {
 	states.push(datadeaths[i].State);
 }
 
+// Function to clean the data based on state and whether it is weighted or unweighted
 function cleanData (state, weightedpop) {
 	var currentdata = Array();
 	for (i = 0; i < datadeaths.length ; i++) {
@@ -119,11 +121,11 @@ h = 500 - topmargin - bottommargin;
 // Define the colors
 var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
 
-//var svg = d3.select('#page3_svg')
+// Define the main svg
 var svg = d3.select("#page3_svg")
     .append("g");
-    //.attr("transform", "translate(" + leftmargin + "," + topmargin + ")");
 
+// X-axis (bottom)
 var x = d3.scaleBand()
 	.domain(races)
 	.range([0,w])
@@ -144,7 +146,7 @@ svg.append("text")
     .style("font-family", "Georgia, serif")
     .text("Race (% of Total Deaths / % of Total Population");
     	
-
+// X-axis subgroup (bottom)
 var xSubgroup = d3.scaleBand()
     .domain(subgroups)
     .range([0, x.bandwidth()])
@@ -182,7 +184,6 @@ svg.append("text")
     .attr("x", -245)
     .attr("dy", "1em")
     .style("font-family", "Georgia, serif")
-    //.attr("transform", "translate(" + 10 + ", " + h/2 + ")")
    	.attr("text-anchor", "middle")
     .text("Percentage of Total (%)");
 
@@ -197,21 +198,22 @@ svg.append("g")
     .style("font-family", "Georgia, serif")
     .call(d3.axisRight(y2).ticks(20));
 
+
 // Y-gridlines
 svg.append("g")			
 	.attr("class", "grid")
 	.attr("transform","translate("+leftmargin+","+rightmargin+")")
 	.call(d3.axisLeft(y).ticks(20).tickSize(-w).tickFormat(""));
   
+
 // Color palette
 var color = d3.scaleOrdinal()
     .domain(races)
     .range(colorarray);
 
-console.log("color:", colorarray);
-console.log("races:", races);
-showBars(dataclean, false);
 
+// Call the function the show the bars
+showBars(dataclean, false);
 
 
 // Add dropdown options
@@ -223,165 +225,97 @@ d3.select("#selectButton")
     .text(function (d) { return d; })
     .attr("value", function (d) { return d; })
 
+
+// States dropdown button was selected
 d3.select("#selectButton").on("change", function(d) {
 	selectedState = this.value;
     showBars(cleanData(selectedState, true), true);
 })
 
-d3.select("#unweighted").on("click", function() {
+// TO DO
+/*d3.select("#unweighted").on("click", function() {
 	console.log(cleanData(selectedState, false));
 	showBars(cleanData(selectedState, false), true);
 });
 
 d3.select("#weighted").on("click", function() {
 	showBars(cleanData(selectedState, true), true);
-});
+});*/
 
 
-
-function showBars(datafiltered, update) {
-    //console.log("datafiltered:", datafiltered);
+// Function to display and update the bars
+function showBars(datafiltered, updated) {
     var dataType = d3.keys(datafiltered[0]).filter(function(key) { return key !== "Race"; });
     console.log("dataType:", dataType);
     datafiltered.forEach(function(d) {
-      d.dataTypes = dataType.map(function(name) { return {name: name, value: +d[name]}; }); // get the name of each category filter and its value
+      d.dataTypes = dataType.map(function(key) { return {key: key, value: +d[key]}; });
     });
     console.log("datafiltered:", datafiltered);
 
-    //x.domain(datafiltered.map(function(d) { return d.Race; })); // state names in X axis
-    //xSubgroup.domain(dataType).scaleBand([0, xSubgroup.scaleBand()]); // set separation settings between x values
-    //xSubgroup.bandwidth()
-    //y.domain([0, 100]); // ages in y axis
 
-    /* data */
     var race = svg.selectAll(".Race")
         .data(datafiltered)
       	.enter().append("g")
         	.attr("class", "g")
-        	//.attr("transform", function(d) { console.log("transform:", d.Race); return "translate(" + x(d.Race) + ",0)"; });
         	.attr("transform", function(d) { console.log("transform:", d.Race); return "translate(" + (leftmargin + x(d.Race)) + ",50)"; })
         	.attr("fill", function(d) { console.log("fill d:", d); return color(d.Race); });
         	
-
-    /* rectangles */  
     var rects = race.selectAll("rect")
         .data(function(d) { console.log("rects data:", d.dataTypes); return d.dataTypes; });
-        //.attr("fill", function(d) { console.log("fill d:", d); return color(d.Race); });
   
-    if (update) {
-      svg.selectAll("rect").transition().duration(750).attr("height", 0).attr("width", 0);//.remove();
-      rects.enter().append("rect").transition().duration(2000)
-        //.attr("width", 0)
-        //.attr("fill", function(d) { console.log("fill d:", d); return color(d.Race); })
-        .attr("width", xSubgroup.bandwidth())
-        .attr("x", function(d) { console.log("x1:", d.name); return xSubgroup(d.name); })
-        .attr("y", function(d) { console.log("y1:", d.value); return y(d.value); })
-        //.attr("height", 0)
-        .attr("height", function(d) { console.log("height:", d); return h - y(d.value); })
-        //.style("fill", function(d) { return color(d.Race); })
-        .attr("opacity", function(d, i) {
-			if (i == 0) {return 1;}
-			else {return 0.5;}
-			})
-        .delay(function(d,i){console.log(i) ; return(i*100)});
-        rects.exit().transition().duration(750).attr("height", 0).attr("width", 0);//.remove();
+    if (updated) {
+        svg
+            .selectAll("rect")
+            .transition()
+            .duration(1000)
+            .attr("height", 0)
+            .attr("width", 0)
+            .remove();
         rects
-        .transition().duration(750)
-        	.attr("x", function(d) { console.log("x1:", d.name); return xSubgroup(d.name); })
-            .attr("y", function(d) { console.log("y2:", d.name); return y(d.value); })
+            .enter()
+            .append("rect")
+            .transition()
+            .duration(1000)
+            //.attr("width", 0)
+            .attr("width", xSubgroup.bandwidth())
+            .attr("x", function(d) { console.log("x1:", d.key); return xSubgroup(d.key); })
+            .attr("y", function(d) { console.log("y1:", d.value); return y(d.value); })
+            //.attr("height", 0)
+            .attr("height", function(d) { console.log("height:", d); return h - y(d.value); })
+            .attr("opacity", function(d, i) {
+    			if (i == 0) {return 1;}
+    			else {return 0.5;}
+    			})
+            .delay(function(d,i){console.log(i) ; return(i*100)});
+        rects
+            .exit()
+            .transition()
+            .duration(750)
+            .attr("height", 0)
+            .attr("width", 0)
+            .remove();
+        rects
+            .transition()
+            .duration(750)
+        	.attr("x", function(d) { console.log("x1:", d.key); return xSubgroup(d.key); })
+            .attr("y", function(d) { console.log("y2:", d.key); return y(d.value); })
             .attr("height", function(d) { console.log("height:", d); return h - y(d.value); })
             .attr("width", xSubgroup.bandwidth());
     } else {
-      rects.enter().append("rect")
-        .attr("width", xSubgroup.bandwidth())
-        .attr("x", function(d) { console.log("x:", d); return xSubgroup(d.name); })
-        .attr("y", function(d) { return y(d.value); })
-        .attr("height", function(d) { console.log(d); return h - y(d.value); })
-        //.style("fill", function(d) { return color(d.name); });
-        .attr("opacity", function(d, i) {
-			if (i == 0) {return 1;}
-			else {return 0.5;}
-			})
-        rects.exit().remove();
+        rects.enter().append("rect")
+            .attr("width", xSubgroup.bandwidth())
+            .attr("x", function(d) { console.log("x:", d); return xSubgroup(d.key); })
+            .attr("y", function(d) { return y(d.value); })
+            .attr("height", function(d) { console.log(d); return h - y(d.value); })
+            .attr("opacity", function(d, i) {
+            	if (i == 0) {return 1;}
+            	else {return 0.5;}});
+        rects
+            .exit()
+            .remove();
     } 
 
   }
-
-
-
-
-/*
-
-*/
-/*
-
-
-// Show the bars
-svg.append("g")
-	.selectAll("g")
-    // Enter in data = loop group per group
-    .data(dataclean)
-    //.filter(function(d) { return (d.State == "United States");})
-    .enter()
-    .append("g")
-      	.attr("transform", function(d) { return "translate(" + (leftmargin + x(d.Race)) + ",50)"; })
-      	.attr("fill", function(d) { return color(d.Race); })
-    .selectAll("rect")
-		.data(function(d) { 
-			console.log("Outer:", d.Race);
-			return subgroups.map(function(key) { 
-				console.log("Inner:", {key: key, value: d[key]});
-				return {key: key, value: d[key]}; }); 
-			})
-		//.attr("fill", function(d) { console.log(d.Race + "_" + d.key); return color(d.Race + "_" + subgroupsU[1]); })
-		.enter().append("rect")
-			.attr("x", function(d, i) { 
-				console.log("d, i 1st: ", d, i);
-				return xSubgroup(d.key); })
-			//.attr("y", function(d) { return y(d.value); })
-			.attr("y", function(d) { return y(0); })
-			.attr("width", xSubgroup.bandwidth())
-			//.attr("height", function(d) { return h - y(d.value); })
-			.attr("height", function(d) { return h-y(0); })
-			//.attr("fill", function(d, i) { console.log(d); return color("White" + "_" + d.key); })
-			.attr("border", "solid")
-			.attr("border-width", "1px")
-			.attr("opacity", function(d, i) {
-				if (i == 0) {return 1;}
-				else {return 0.5;}
-				})
-
-// Create the animated effect
-svg.selectAll("rect")
-  	.transition()
-  	.duration(2000)
-  	//.attr("y", function(d) { return y(d[1]); })
-  	.attr("y", function(d) { return y(d.value); })
-  	//.attr("height", function(d) { return y(d[0]) - y(d[1]); })
-  	.attr("height", function(d) { return h - y(d.value); })
-  	.delay(function(d,i){console.log(i) ; return(i*50)});
-
-// Add dropdown options
-d3.select("#selectButton")
-    .selectAll('myOptions')
-    .data(states)
-    .enter()
-    .append('option')
-    .text(function (d) { return d; })
-    .attr("value", function (d) { return d; })
-
-d3.select("#selectButton").on("change", function(d) {
-    selectedGroup = this.value;
-    //console.log(selectedGroup);
-    updateChart(selectedGroup);
-})
-
-  // A function that update the color of the circle
-function updateChart(selectedGroup) {
-
-}
-*/
-
 
 }
 
