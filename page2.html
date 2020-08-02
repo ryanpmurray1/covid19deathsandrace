@@ -11,12 +11,15 @@
 
 <body onload='init()'>
 
-	<p class="blocktext">REPLACE ME! Number of deaths reported in this table are the 
-	total number of deaths received and coded as of the date of analysis, and do not 
-	represent all deaths that occurred in that period. Data during this period are 
-	incomplete because of the lag in time between when the death occurred and when 
-	the death certificate is completed, submitted to NCHS and processed for reporting 
-	purposes. This delay can range from 1 week to 8 weeks or more.</p>
+	<p class="blocktext">
+	The scatter plot below plots the "Distribution of Population" (as a percentage) versus the "Distribution of COVID-19 Deaths" (also as a percentage). Each circle corresponds to a specific race in a particular state.
+	<br><br>
+	Note that many of the data points are clustered in the lower left corner of the graph, as many of the races do not constitute a significant portion of a state's population. On the contrary, as White is the majority race in most states, most of its data points reside in the upper right corner of the graph.
+	<br><br>
+	If a race's COVID-19 deaths were proportionate to the total population, each data point would lie on the dashed line. The further a point strays from the line, the more disproportionate that race in that state is dying. The most extreme outliers are circled.
+	<br><br>
+	TIP: Hover over each data point to reveal the state.
+	</p>
 	
 	<div id="chart" style="text-align:center;">
 		<svg id="page2_svg" width=900 height=510></svg>
@@ -76,8 +79,6 @@ for (i = 0; i < datadeaths.length ; i++) {
 }
 console.log("dataclean:", dataclean);
 
-
-
 var states = d3.map(dataclean, function(d){return(d.State)}).keys();
 
 // Define the margins and dimensions
@@ -89,7 +90,9 @@ w = 900 - leftmargin - rightmargin;
 h = 500 - topmargin - bottommargin;
 
 // Define the colors
-var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
+//var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
+//var colorarray = ['#003f5c','#E19805','#00C974','#ff6e54','#955196','#444e86'];
+var colorarray = ['#955196','#ffa600','#00C974','#ff6e54','#003f5c','#3498DB'];
 
 // Legend parameters
 var legenddata = [
@@ -98,33 +101,33 @@ var legenddata = [
 	{x: +leftmargin+240, 	c: colorarray[2], t: "Hispanic"},
 	{x: +leftmargin+360, 	c: colorarray[3], t: "Asian"},
 	{x: +leftmargin+460, 	c: colorarray[4], t: "Am. Indian or Alaska Native"},
-	{x: +leftmargin+720, 	c: colorarray[5], t: "Other"}]
+	{x: +leftmargin+680, 	c: colorarray[5], t: "Other"}]
 
 // Legend circles
 circlerad = 8;
 textoffset = 10;
 yloc = 20;
-textsize = "16px"
-svg.selectAll("legendcircles")
+textsize = "12px"
+svg.selectAll("circle")
 	.data(legenddata)
-	.enter()
-	.append("circle")
-		.attr("cx", function(d) { return d.x; })
+	.enter().append("circle")
+    	.attr("cx", function(d) { return d.x; })
 		.attr("cy", yloc)
 		.attr("r", circlerad)
-		.style("fill", function(d) { return d.c; });
+		.style("fill", function(d) { return d.c; })
+		.style("stroke", "white");
 	
 // Legend text
-svg.selectAll("legendtext")
+svg.selectAll("text")
 	.data(legenddata)
-	.enter()
-	.append("text")
+	.enter().append("text")
 		.attr("x", function(d) { return d.x + textoffset; })
 		.attr("y", yloc+1)
 		.text(function(d) { return d.t; })
 		.style("font-size", textsize)
 		.style("font-family", "Georgia, serif")
-		.attr("alignment-baseline","middle");
+		.attr("alignment-baseline","middle")
+		.style("fill", function(d) { return d.c; });
 
 // X-axis (bottom)
 var x = d3.scaleLinear()
@@ -150,7 +153,7 @@ svg.append("g")
 		
 // Y-axis (left)
 var y = d3.scaleLinear()
-	.domain([0,100])
+	.domain([0,100]) 
 	.range([h,0]);
 svg.append("g")
     .attr("transform","translate("+50+","+50+")")
@@ -185,6 +188,10 @@ svg.append("line")
     .attr("stroke-width", 1)
     .attr("stroke", "black")
     .attr("stroke-dasharray", "5,5");
+    //.transition()
+	//.delay(13000)
+	//.duration(3000)
+	//.style("opacity", 1);
     
 // Color palette
 var color = d3.scaleOrdinal()
@@ -195,7 +202,7 @@ var color = d3.scaleOrdinal()
 var tooltip = d3.select("#page2_tooltip")
     .append("div")
     .data(dataclean)
-    .style("position", "absolute")
+    //.style("position", "absolute")
     .style("visibility", "hidden")
     .style("opacity", 0)
     .attr("class", "tooltip")
@@ -216,8 +223,8 @@ tooltip
 // Mousemove Tooltip
 var mousemove = function(d) {
 tooltip
-	.style("left",(event.pageX)+"px")
-  	.style("top", (event.pageY-800)+"px");
+	.style("left",(event.pageX+5)+"px")
+  	.style("top", (event.pageY-850)+"px");
 }
 
 // Mouseleave Tooltip
@@ -233,6 +240,16 @@ svg.append('g')
     .data(dataclean)
     .enter()
     .append("circle")
+		.attr("cx", function (d) { return x(d.PopU)+50; } )
+		.attr("cy", function (d) { return y(d.PopU)+50; } )
+		.attr("r", 0)
+		.attr("id", "circletooltip")
+		.on("mouseover", mouseover)
+  		.on("mousemove", mousemove)
+    	.on("mouseout", mouseleave)
+    	.transition()
+    	.duration(1000)
+    	.delay(function(d,i){ return(i*50); })
     //.filter(function(d) { return (d.PopU >= 5 & d.Deaths >= 5)})
 		.attr("cx", function (d) { return x(d.PopU)+50; } )
 		.attr("cy", function (d) { return y(d.Deaths)+50; } )
@@ -240,9 +257,8 @@ svg.append('g')
 		.style("fill", function(d) { return color(d.Race); })
 		.style("opacity", 1)
 		.style("stroke", "white")
-  	.on("mouseover", mouseover)
-  	.on("mousemove", mousemove)
-    .on("mouseout", mouseleave);
+		.style("stroke-width", 0.5);
+
 }
 
 

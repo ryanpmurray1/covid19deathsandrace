@@ -5,7 +5,7 @@
 	<title>COVID-19 Deaths by Race</title>
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<h1>COVID-19 Deaths by Race</h1>
-    <h4>Let's take a closer look...</h4>
+    <h3>Let's take a closer look...</h4>
 </head>
 
 
@@ -91,16 +91,15 @@ function cleanData (state, weightedpop) {
 						Race: races[j],
 						Deaths: +datadeaths[i][racecolumns[j]],
 						Pop: +datapop_weighted[i][racecolumns[j]]})
-				} else {
-					currentdata.push({
-						Race: races[j],
-						Deaths: +datadeaths[i][racecolumns[j]],
-						Pop: +datapop_unweighted[i][racecolumns[j]]})
 				}
+				currentdata.push({
+					Race: races[j],
+					Deaths: +datadeaths[i][racecolumns[j]],
+					Pop: +datapop_unweighted[i][racecolumns[j]]})
 			}
-			}
-		} return currentdata;
-	}
+		}
+	} return currentdata;
+}
 
 selectedState = "United States"
 dataclean = cleanData(selectedState, false)
@@ -119,7 +118,8 @@ w = 900 - leftmargin - rightmargin;
 h = 500 - topmargin - bottommargin;
 
 // Define the colors
-var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
+//var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
+var colorarray = ['#955196','#ffa600','#00C974','#ff6e54','#003f5c','#3498DB'];
 
 // Define the main svg
 var svg = d3.select("#page3_svg")
@@ -144,7 +144,7 @@ svg.append("text")
     .attr("x", 450)
     .attr("y", 500)
     .style("font-family", "Georgia, serif")
-    .text("Race (% of Total Deaths / % of Total Population");
+    .text("Each bar pair represents \"% of Total Deaths\" vs. \"% of Total Population\" per race");
     	
 // X-axis subgroup (bottom)
 var xSubgroup = d3.scaleBand()
@@ -229,7 +229,7 @@ d3.select("#selectButton")
 // States dropdown button was selected
 d3.select("#selectButton").on("change", function(d) {
 	selectedState = this.value;
-    showBars(cleanData(selectedState, true), true);
+    showBars(cleanData(selectedState, false), true);
 })
 
 // TO DO
@@ -244,7 +244,7 @@ d3.select("#weighted").on("click", function() {
 
 
 // Function to display and update the bars
-function showBars(datafiltered, updated) {
+function showBars(datafiltered, newstate) {
     var dataType = d3.keys(datafiltered[0]).filter(function(key) { return key !== "Race"; });
     console.log("dataType:", dataType);
     datafiltered.forEach(function(d) {
@@ -263,55 +263,69 @@ function showBars(datafiltered, updated) {
     var rects = race.selectAll("rect")
         .data(function(d) { console.log("rects data:", d.dataTypes); return d.dataTypes; });
   
-    if (updated) {
-        svg
-            .selectAll("rect")
-            .transition()
-            .duration(1000)
-            .attr("height", 0)
-            .attr("width", 0)
-            .remove();
-        rects
-            .enter()
-            .append("rect")
-            .transition()
-            .duration(1000)
-            //.attr("width", 0)
+    if (newstate) {
+        svg.selectAll("rect")
+            .attr("height", function(d) { return h - y(d.value); })
             .attr("width", xSubgroup.bandwidth())
-            .attr("x", function(d) { console.log("x1:", d.key); return xSubgroup(d.key); })
-            .attr("y", function(d) { console.log("y1:", d.value); return y(d.value); })
-            //.attr("height", 0)
-            .attr("height", function(d) { console.log("height:", d); return h - y(d.value); })
+            .transition()
+            .duration(0)
+            .remove();
+        rects.enter()
+            .append("rect")
+            .attr("width", xSubgroup.bandwidth())
+            .attr("x", function(d) { return xSubgroup(d.key); })
+            .attr("y", function(d) { return y(0); })
+            .attr("height", function(d) { return h - y(0); })
             .attr("opacity", function(d, i) {
     			if (i == 0) {return 1;}
     			else {return 0.5;}
     			})
-            .delay(function(d,i){console.log(i) ; return(i*100)});
-        rects
-            .exit()
             .transition()
-            .duration(750)
-            .attr("height", 0)
+            .duration(1000)
+            .attr("y", function(d) { return y(d.value); })
+            .attr("height", function(d) { return h - y(d.value); })
+            .delay(function(d,i){ return(i*100)});
+        rects.exit()
+            .transition()
+            .duration(0)
+            .attr("height", function(d) { return h - y(0);})
             .attr("width", 0)
             .remove();
-        rects
-            .transition()
+        rects.transition()
             .duration(750)
-        	.attr("x", function(d) { console.log("x1:", d.key); return xSubgroup(d.key); })
-            .attr("y", function(d) { console.log("y2:", d.key); return y(d.value); })
-            .attr("height", function(d) { console.log("height:", d); return h - y(d.value); })
+        	.attr("x", function(d) { return xSubgroup(d.key); })
+            .attr("y", function(d) { return y(d.value); })
+            .attr("height", function(d) { return h - y(d.value); })
             .attr("width", xSubgroup.bandwidth());
+
+        /*
+        //svg.selectAll("rect")
+        rects.enter().append("rect")
+            .attr("width", xSubgroup.bandwidth())
+            .attr("x", function(d) { console.log("x:", d); return xSubgroup(d.key); })
+            .attr("y", function(d) { return y(0); })
+            .attr("height", function(d) { console.log(d); return h - y(0); })
+            .transition()
+            .duration(1000)
+            .attr("x", function(d) { console.log("new d.key", d.key); return xSubgroup(d.key); })
+            .attr("y", function(d) { console.log("new d.value", d.value); return y(d.value); })
+            .attr("height", function(d) { return h - y(d.value); })
+            .attr("width", xSubgroup.bandwidth());
+        */
     } else {
         rects.enter().append("rect")
             .attr("width", xSubgroup.bandwidth())
             .attr("x", function(d) { console.log("x:", d); return xSubgroup(d.key); })
-            .attr("y", function(d) { return y(d.value); })
-            .attr("height", function(d) { console.log(d); return h - y(d.value); })
+            .attr("y", function(d) { return y(0); })
+            .attr("height", function(d) { console.log(d); return h - y(0); })
             .attr("opacity", function(d, i) {
             	if (i == 0) {return 1;}
-            	else {return 0.5;}});
-        rects
-            .exit()
+            	else {return 0.5;}})
+            .transition()
+            .duration(1000)
+            .attr("y", function(d) { return y(d.value); })
+            .attr("height", function(d) { console.log(d); return h - y(d.value); })
+        rects.exit()
             .remove();
     } 
 

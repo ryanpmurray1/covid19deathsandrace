@@ -5,18 +5,26 @@
 	<title>COVID-19 Deaths by Race</title>
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<h1>COVID-19 Deaths by Race</h1>
-	<h3>How many people have died from COVID-19 in the United States?</h3>
+	<h3>Is race a factor in COVID-19 deaths in the United States?</h3>
 </head>
 
 
 <body onload='init()'>
 
-	<p class="blocktext">REPLACE ME! Number of deaths reported in this table are the 
-	total number of deaths received and coded as of the date of analysis, and do not 
-	represent all deaths that occurred in that period. Data during this period are 
-	incomplete because of the lag in time between when the death occurred and when 
-	the death certificate is completed, submitted to NCHS and processed for reporting 
-	purposes. This delay can range from 1 week to 8 weeks or more.</p>
+	<p class="blocktext">
+	It has been widely stated that the COVID-19 virus does not discriminate. 
+	However, at least in the United States, it has been suggested that a disproportionate number 
+	of minorities have been dying from the disease. Let's investigate the data to see if this claim
+	is supported...
+	<br><br>
+	The bar chart below details the total deaths in each state plus the District of Columbia. The minimum
+	number of deaths is 100, so therefore some states are excluded from the dataset (Alaska, Hawaii, 
+	Montana, Vermont, Wyoming). Also note that due to the number of deaths in New York City, it is listed
+	separately form New York state.
+	<br><br>
+	The chart appears to show that a large number of Black and Hispanic people are dying from COVID-19
+	in the states of California, Illinois, Louisiana, Michigan, Texas and in New York City.
+	</p>
 	
 	<div id="chart" style="text-align:center;">
 		<svg id="page1_svg" width=900 height=575></svg>
@@ -33,13 +41,14 @@
 
 async function init() {
 
+var svg = d3.select("#page1_svg");
+
 const data = await d3.csv('https://raw.githubusercontent.com/ryanpmurray1/covid19deathsbyrace/master/Provisional_Death_Counts_for_Coronavirus_Disease__COVID-19___Weekly_State-Specific_Data_Updates.csv');
-console.log("data:", data);
+
 dataclean = data.filter( function (d) {
 	if (d.Indicator == "Count of COVID-19 deaths" & d.State != "United States") {
 		return d };
 });
-console.log("dataclean:", dataclean);
 
 //var races = data.columns.slice(3,9);
 var races = ["Non-Hispanic White", 
@@ -48,9 +57,8 @@ var races = ["Non-Hispanic White",
 	"Non-Hispanic Asian",
 	"Non-Hispanic American Indian or Alaska Native", 
 	"Other"];
-console.log("races:",races);
+
 var states = d3.map(dataclean, function(d){return(d.State)}).keys();
-console.log("states:", states);
 
 // Convert columns to numeric
 dataclean.forEach(function(d) {
@@ -71,7 +79,11 @@ w = 900 - leftmargin - rightmargin;
 h = 500 - topmargin - bottommargin;
 
 // Define the colors
-var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
+//var colorarray = ['#003f5c','#ffa600','#955196','#ff6e54','#00C974','#3498DB'];
+var colorarray = ['#955196','#ffa600','#00C974','#ff6e54','#003f5c','#3498DB'];
+//var colorarray = ['#34BDDB','#A634DB','#DB5234','#6ADB34','#E7CE17','#E71798'];
+//var colorarray = ['','','','','',''];
+//var colorarray = ['#4043EA','#EA4040','#95EA40','#40EAEA','#9540EA','#EAB440'];
 
 // Legend parameters
 var legenddata = [
@@ -80,25 +92,24 @@ var legenddata = [
 	{x: +leftmargin+240, 	c: colorarray[2], t: "Hispanic"},
 	{x: +leftmargin+360, 	c: colorarray[3], t: "Asian"},
 	{x: +leftmargin+460, 	c: colorarray[4], t: "Am. Indian or Alaska Native"},
-	{x: +leftmargin+720, 	c: colorarray[5], t: "Other"}]
+	{x: +leftmargin+680, 	c: colorarray[5], t: "Other"}]
 
 // Legend circles
 circlerad = 8;
 textoffset = 10;
 yloc = 20;
-textsize = "16px"
-d3.select('svg')
-	.selectAll("circle")
+textsize = "12px"
+svg.selectAll("circle")
 	.data(legenddata)
 	.enter().append("circle")
     	.attr("cx", function(d) { return d.x; })
 		.attr("cy", yloc)
 		.attr("r", circlerad)
-		.style("fill", function(d) { return d.c; });
+		.style("fill", function(d) { return d.c; })
+		.style("stroke", "white");
 
 // Legend text
-d3.select('svg')
-	.selectAll("text")
+svg.selectAll("text")
 	.data(legenddata)
 	.enter().append("text")
 		.attr("x", function(d) { return d.x + textoffset; })
@@ -106,17 +117,17 @@ d3.select('svg')
 		.text(function(d) { return d.t; })
 		.style("font-size", textsize)
 		.style("font-family", "Georgia, serif")
-		.attr("alignment-baseline","middle");
+		.attr("alignment-baseline","middle")
+		.style("fill", function(d) { return d.c; });
 
 // X-axis (bottom)
 var xdomain = dataclean.map(function(d) { return d.State}).keys();
-console.log("xdomain:", xdomain);
+//console.log("xdomain:", xdomain);
 var x = d3.scaleBand()
 	.domain(states)
 	.range([0,w])
 	.padding(0.2);
-d3.select('svg')
-    .append("g")
+svg.append("g")
     .attr("transform","translate("+50+","+(h+50)+")")
 	.call(d3.axisBottom(x))
     .selectAll("text")
@@ -132,11 +143,11 @@ ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
 		return d[races[0]] + d[races[1]] + d[races[2]] + d[races[3]] + d[races[4]] + d[races[5]];
 	} else { return 0; }
 })/1000)*1000];
-console.log("ydomain:", ydomain);
+//console.log("ydomain:", ydomain);
 var y = d3.scaleLinear()
 	.domain(ydomain)
 	.range([h,0]);
-d3.select('svg')
+svg
     .append("g")
     .attr("transform","translate("+50+","+50+")")
     .style("font", "12px arial")
@@ -147,7 +158,7 @@ d3.select('svg')
 var y = d3.scaleLinear()
 	.domain(ydomain)
 	.range([h,0]);
-d3.select('svg')
+svg
     .append("g")
     .attr("transform","translate("+850+","+50+")")
     .style("font", "12px arial")
@@ -155,7 +166,7 @@ d3.select('svg')
     .call(d3.axisRight(y).ticks(20));
 
 // Y-gridlines
-d3.select('svg')
+svg
 	.append("g")			
 		.attr("class", "grid")
 		.attr("transform","translate("+leftmargin+","+rightmargin+")")
@@ -171,35 +182,33 @@ var stackedData = d3.stack()
 	.keys(races)
 	(dataclean);
 
-console.log("stackedata:", stackedData)
+//console.log("stackedata:", stackedData)
 
 // Show the bars
-d3.select('svg')
-	.append("g")
+svg.append("g")
 	.attr('transform',"translate("+leftmargin+","+rightmargin+")")
     .selectAll("g")
-    // Enter in the stack data = loop key per key = group per group
     .data(stackedData)
     .enter().append("g")
-      .attr("fill", function(d) { return color(d.key); })
-      .selectAll("rect")
-      .data(function(d) { return d; })
-      .enter().append("rect")
-        .attr("x", function(d) { return x(d.data.State); })
-        //.attr("y", function(d) { return y(d[1]); })
-        .attr("y", function(d) { return y(0); })
-        //.attr("height", function(d) { return y(d[0]) - y(d[1]); })
-        .attr("height", function(d) { return h-y(0); })
-        .attr("width",x.bandwidth());
+      	.attr("fill", function(d) { return color(d.key); })
+      	.selectAll("rect")
+      	.data(function(d) { return d; })
+      	.enter().append("rect")
+        	.attr("x", function(d) { return x(d.data.State); })
+        	.attr("y", function(d) { return y(0); })
+        	.attr("height", function(d) { return h-y(0); })
+        	.attr("width",x.bandwidth())
+        	.style("stroke", "white")
+        	.style("stroke-width", 0.5);
 
 // Create the animated effect
-d3.select('svg')
-	.selectAll("rect")
+svg.selectAll("rect")
   	.transition()
-  	.duration(2000)
+  	.duration(3000)
   	.attr("y", function(d) { return y(d[1]); })
   	.attr("height", function(d) { return y(d[0]) - y(d[1]); })
-  	.delay(function(d,i){console.log(i) ; return(i*50)});
+  	.delay(function(d,i){ return(i*25)});
+  	
 
 // Total deaths text
 usdata = data.filter( function (d) {
@@ -218,7 +227,6 @@ usdata.forEach(function(d) {
 });
 
 // Calculate the total U.S. deaths
-console.log("usdata:", usdata);
 totaldeaths = 
 	usdata[0][races[0]] +
 	usdata[0][races[1]] +
@@ -227,67 +235,47 @@ totaldeaths =
 	usdata[0][races[4]] +
 	usdata[0][races[5]];
 
-// Display the Total U.S. Deaths text
-d3.select('svg')
-	.selectAll("text")
-	//.transition()
-	//.duration(800)
-	.data(data)
-	.enter().append("text")
-		.attr("x", 300)
-		.attr("y", 550)
-		//.text(function(d) { return "TOTAL U.S. DEATHS:"; })
-		.text("Total U.S. Deaths: " + totaldeaths)
-		.style("font-size", "25px")
+// Annotation: Text for Total U.S. Deaths
+svg.append("text")
+	.attr("x", 300)
+	.attr("y", 550)
+	.text("Total U.S. Deaths: " + totaldeaths)
+	.style("font-size", "25px")
+	.style("font-family", "Georgia, serif")
+	.style("fill", "white")
+	.attr("alignment-baseline","middle")
+	.transition()
+	.delay(11000)
+	.duration(1000)
+	.style("fill", "black");
+
+// Annotation: Circle around NYC bar
+svg.append("circle")
+	.attr("cx", 568)
+	.attr("cy", 70)
+	.attr("r", 20)
+	.style("fill", "none")
+	.style("stroke-dasharray", ("7,5"))
+	.style("stroke-width", 0)
+	.transition()
+	.delay(10000)
+	.duration(1000)
+	.style("stroke-width", 2);
+
+// Annotation: Text for NYC bar
+svg.data(data)
+	.append("text")
+		.attr("x", 590)
+		.attr("y", 70)
+		.text("Total NYC Deaths: 20456")
+		.style("font-size", "14px")
 		.style("font-family", "Georgia, serif")
 		.attr("alignment-baseline","middle")
-		//.delay(function(d,i){console.log(i) ; return(i*10)});
-    
-// Annotation line for NYC
-/*d3.select('svg')
-	.selectAll("line")
-	.data(data)
-	.enter().append('path')
-		.attr('d', d3.line()([[565, 61], [565, 61]]))
-		.attr('stroke', 'black')
-		.attr('marker-start', 'url(#arrow)')
-		.attr('marker-end', 'url(#arrow)')
-		.attr('fill', 'none');*/
-
-// Create the animated effect
-/*d3.select('svg')
-	.select("path")
-  	.transition()
-  	.duration(800)
-  	.attr('d', d3.line()([[400, 90], [565, 61]]))
-  			.attr('stroke', 'black')
-		.attr('marker-start', 'url(#arrow)')
-		.attr('marker-end', 'url(#arrow)')
-		.attr('fill', 'none')
-  	.delay(function(d,i){console.log(i) ; return(i*50)});*/
-  	
-// Annotation text for NYC
-/*d3.select('svg')
-	.selectAll("text")
-	.data(data)
-	.enter().append("text")
-		.attr("x", 400)
-		.attr("y", 90)
-		.text("New York City: ")
-		.style("font-size", "20px")
-		.attr("alignment-baseline","middle")
-
-// Legend text
-d3.select('svg')
-	.selectAll("text")
-	.data(legenddata)
-	.enter().append("text")
-		.attr("x", function(d) { return d.x + textoffset; })
-		.attr("y", yloc)
-		.text(function(d) { return d.t; })
-		.style("font-size", textsize)
-		.attr("alignment-baseline","middle");*/
-
+		.style("fill", "none")
+		.transition()
+		.delay(10000)
+		.duration(1000)
+		.style("fill", "black");
 
 }
 
