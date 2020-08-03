@@ -19,18 +19,15 @@
     <p class="blocktext" style="font-weight:bold;">
         Select a different state from the dropdown list to view it's specific data. Can you identify any other states where minorities are dying from COVID-19 at a disproportionate rate?
     </p>
-    </p>
-	
 	<!--
 	<div id="popButton">
 	  <input type="radio" name="population" value="unweighted" checked="checked"> Unweighted Population (%)<br>
 	  <input type="radio" name="population" value="weighted"> Weighted Population (%)<br>
 	</div> -->
 
-	<div id="statesButton" align="center" style="text-align:center;" align-items="center">
-		<select id="selectButton" align="center" style="text-align:center;" align-items="center"></select>
-	</div>
-
+    <div id="statesButton" align="center" style="text-align:center;" align-items="center">
+	<select id="selectButton" class="dropdown"></select>
+    </div>
 	<div id="chart" style="text-align:center;">
 		<svg id="page3_svg" width=900 height=510></svg>
 	</div>
@@ -40,7 +37,8 @@
 	</p>
 
     <p class="footer">
-        <br><br><br><br>Data source: <a href="https://data.cdc.gov/NCHS/Provisional-Death-Counts-for-Coronavirus-Disease-C/pj7m-y5uh" target="_blank">Centers for Disease Control and Prevention</a> (data updated: 07/22/2020)
+        <br><br><br><br>Data source: <a href="https://data.cdc.gov/NCHS/Provisional-Death-Counts-for-Coronavirus-Disease-C/pj7m-y5uh" target="_blank">Centers for Disease Control and Prevention</a> (data updated: 07/22/2020).
+        <br>Created by Ryan Murray for the UIUC CS498 Data Visualization course (Summer 2020).
     </p>
 
 <script>

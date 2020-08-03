@@ -106,11 +106,11 @@ svg.selectAll("text")
 	.data(legenddata)
 	.enter().append("text")
 		.attr("x", function(d) { return d.x + textoffset; })
-		.attr("y", yloc+1)
+		.attr("y", yloc+4)
 		.text(function(d) { return d.t; })
 		.style("font-size", textsize)
 		.style("font-family", "Georgia, serif")
-		.attr("alignment-baseline","middle")
+		//.attr("alignment-baseline","middle")
 		.style("fill", function(d) { return d.c; });
 
 // X-axis (bottom)
@@ -260,11 +260,11 @@ svg.append("circle")
 	.attr("r", 20)
 	.style("fill", "none")
 	.style("stroke-dasharray", ("7,5"))
-	.style("stroke-width", 0)
+	.style("stroke-width", "0px")
 	.transition()
 	.delay(10000)
 	.duration(1000)
-	.style("stroke-width", 2);
+	.style("stroke-width", "1px");
 
 // Annotation: Text for NYC bar
 svg.data(data)
