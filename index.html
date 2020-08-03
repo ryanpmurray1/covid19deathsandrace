@@ -16,7 +16,7 @@
 	It has been widely stated that the COVID-19 virus does not discriminate. 
 	However, at least in the United States, it has been suggested that a disproportionate number of minorities have been dying from the disease. Let's investigate the data to see if this claim is supported...
 	<br><br>
-	The bar chart below details the total deaths in each state plus the District of Columbia. The minimum number of deaths is 100, so therefore some states are excluded from the dataset (Alaska, Hawaii, Montana, Vermont, Wyoming). Additionally, if a race has less than 10 deaths in a state, it is also ommitted in accordance iwth confidentiality standards. Note that due to the number of deaths in New York City, it is listed separately form New York state.
+	The bar chart below details the total deaths in each state plus the District of Columbia. The minimum number of deaths is 100, so therefore some states are excluded from the dataset (Alaska, Hawaii, Montana, Vermont, Wyoming). Additionally, if a race has less than 10 deaths in a state, it is also ommitted in accordance with confidentiality standards. Note that due to the number of deaths in New York City, it is listed separately form New York state.
 	<br><br>
 	The chart appears to show that a large number of Black and Hispanic people are dying from COVID-19 in the states of California, Illinois, Louisiana, Michigan, Texas and in New York City.
 	</p>
@@ -211,6 +211,7 @@ svg.selectAll("rect")
   	.attr("height", function(d) { return y(d[0]) - y(d[1]); })
   	.delay(function(d,i){ return(i*25)});
   	
+totalnycdeaths = +20456;
 
 // Total deaths text
 usdata = data.filter( function (d) {
@@ -237,20 +238,23 @@ totaldeaths =
 	usdata[0][races[4]] +
 	usdata[0][races[5]];
 
+
+addcomma = d3.format(",");
+
 // Annotation: Text for Total U.S. Deaths
 svg.append("text")
 	//.attr("x", 300)
 	//.attr("y", 550)
 	.attr("x", 125)
-	.attr("y", 100)
-	.text("Total U.S. Deaths: " + totaldeaths)
+	.attr("y", 105)
+	.text("Total U.S. Deaths: " + addcomma(totaldeaths))
 	.style("font-size", "30px")
 	.style("font-family", "Georgia, serif")
 	.style("fill", "none")
-	.attr("alignment-baseline","middle")
+	//.attr("alignment-baseline","middle")
 	.transition()
-	.delay(11000)
-	.duration(1000)
+	.delay(13000)
+	.duration(3000)
 	.style("fill", "black");
 
 // Annotation: Circle around NYC bar
@@ -263,22 +267,22 @@ svg.append("circle")
 	.style("stroke-width", "0px")
 	.transition()
 	.delay(10000)
-	.duration(1000)
+	.duration(3000)
 	.style("stroke-width", "1px");
 
 // Annotation: Text for NYC bar
 svg.data(data)
 	.append("text")
 		.attr("x", 590)
-		.attr("y", 70)
-		.text("Total NYC Deaths: 20456")
+		.attr("y", 75)
+		.text("Total NYC Deaths: " + addcomma(totalnycdeaths))
 		.style("font-size", "14px")
 		.style("font-family", "Georgia, serif")
-		.attr("alignment-baseline","middle")
+		//.attr("alignment-baseline","middle")
 		.style("fill", "none")
 		.transition()
 		.delay(10000)
-		.duration(1000)
+		.duration(3000)
 		.style("fill", "black");
 
 }
