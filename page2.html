@@ -9,7 +9,6 @@
 	<h3>In which states is COVID-19 disproportionately killing more members of a particular race?</h3>
 </head>
 
-
 <body onload='init()'>
 
 	<p class="blocktext">
@@ -17,7 +16,7 @@
 	<br><br>
 	Note that many of the data points are clustered in the lower left corner of the graph, as many of the races do not constitute a significant portion of a state's population. On the contrary, as White is the majority race in most states, most of its data points reside in the upper right corner of the graph.
 	<br><br>
-	If a race's COVID-19 deaths were proportionate to the total population, each data point would lie on the dashed line. The further a point strays above the line, the more disproportionate that race in that state is dying. The most extreme outliers are circled.
+	If a race's COVID-19 deaths were proportionate to the total population, each data point would lie on the dashed line. The further a point strays above the line, the more disproportionate it becomes.
 	<div align="center" style="text-align:center; font-weight:bold; align-items=center;">
 		TIP: Hover over each data point to reveal the state.
 	</div>
@@ -40,7 +39,6 @@ async function init() {
 var svg = d3.select('#page2_svg')
 
 const data = await d3.csv('https://raw.githubusercontent.com/ryanpmurray1/covid19deathsbyrace/master/Provisional_Death_Counts_for_Coronavirus_Disease__COVID-19___Weekly_State-Specific_Data_Updates.csv');
-//console.log(data);
 
 datadeaths = data.filter( function (d) {
 	if (d.Indicator == "Distribution of COVID-19 deaths (%)") {
@@ -56,8 +54,6 @@ datapop_weighted = data.filter( function (d) {
 	if (d.Indicator == "Weighted distribution of population (%)") {
 		return d };
 });
-//console.log("datadeaths:", datadeaths);
-//console.log("datapop_unweighted:", datapop_unweighted);
 
 var races = ["White", "Black", "Hispanic", "Asian", "Native", "Other"];
 var racecolumns = ["Non-Hispanic White", 
@@ -79,7 +75,6 @@ for (i = 0; i < datadeaths.length ; i++) {
 		});
 	}
 }
-console.log("dataclean:", dataclean);
 
 var states = d3.map(dataclean, function(d){return(d.State)}).keys();
 
@@ -92,8 +87,6 @@ w = 900 - leftmargin - rightmargin;
 h = 510 - topmargin - bottommargin;
 
 // Define the colors
-//var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
-//var colorarray = ['#003f5c','#E19805','#00C974','#ff6e54','#955196','#444e86'];
 var colorarray = ['#955196','#ffa600','#00C974','#ff6e54','#003f5c','#3498DB'];
 
 // Legend parameters
@@ -128,7 +121,6 @@ svg.selectAll("text")
 		.text(function(d) { return d.t; })
 		.style("font-size", textsize)
 		.style("font-family", "Georgia, serif")
-		//.attr("alignment-baseline","middle")
 		.style("fill", function(d) { return d.c; });
 
 // X-axis (bottom)
@@ -168,7 +160,6 @@ svg.append("text")
     .attr("x", -245)
     .attr("dy", "1em")
     .style("font-family", "Georgia, serif")
-    //.attr("transform", "translate(" + 10 + ", " + h/2 + ")")
    	.attr("text-anchor", "middle")
     .text("Distribution of COVID-19 deaths (%)");
 
@@ -201,10 +192,6 @@ svg.append("line")
     .attr("stroke-width", 1)
     .attr("stroke", "black")
     .attr("stroke-dasharray", "5,5");
-    //.transition()
-	//.delay(13000)
-	//.duration(3000)
-	//.style("opacity", 1);
     
 // Color palette
 var color = d3.scaleOrdinal()
@@ -218,12 +205,7 @@ var tooltip = d3.select("#page2_tooltip")
     //.style("position", "absolute")
     .style("visibility", "hidden")
     .style("opacity", 0)
-    .attr("class", "tooltip")
-    //.style("background-color", "white")
-    //.style("border", "solid")
-    //.style("border-width", "1px")
-    //.style("border-radius", "5px")
-    //.style("padding", "2px");
+    .attr("class", "tooltip");
 
 // Mouseover Tooltip
 var mouseover = function(d) {
@@ -271,48 +253,39 @@ svg.selectAll("dot")
 		.style("stroke", "white")
 		.style("stroke-width", 0.5);
 
-/*svg.selectAll("dot2").append("circle")
-	.data(dataclean)
-	.attr("cx", function (d) { return x(d.PopU)+50; })
-	.attr("cy", function (d) { return y(d.Deaths)+50; })
-	//.attr("cx", 568)
-	//.attr("cy", 70)
-	.attr("r", 20)
-	.style("fill", "none")
-	.style("stroke-dasharray", ("7,5"))
-	.style("stroke-width", 0)
-	.transition()
-	.delay(10000)
-	.duration(1000)
-	.style("stroke-width", 2);
-*/
-
-/*
-// Add instructions
-svg.data(data)
-.append("text")
-	.attr("x", function (d) { return x(5)+50; })
-	.attr("y", function (d) { return y(95)+50; })
-	.text("Hover over each data point to reveal the state.")
-	.style("font-size", "12px")
-	.style("font-family", "Georgia, serif")
-	.attr("alignment-baseline","middle")
-	//.style("fill", "none")
-	//.transition()
-	//.delay(10000)
-	//.duration(1000)
-	.style("background-color", "white")
-    .style("border", "solid")
-    .style("border-width", "1px")
-    .style("border-radius", "5px")
-    .style("padding", "2px")
-	.style("fill", "black");*/
-
 // Variables for annotation
 rad = 25
 delay = 15000
 duration = 2000
 strokewidth = "1px"
+
+// Annotation: Text near outliers
+svg.append("text")
+	.attr("x", 190)
+	.attr("y", 190)
+	.text("Outliers")
+	.style("font-size", "20px")
+	.style("font-family", "Georgia, serif")
+	.style("fill", "none")
+	.transition()
+	.delay(delay)
+	.duration(duration)
+	.style("fill", "black");
+
+// Annotation: Circles around outliers (New Mexico)
+svg.append("circle")
+	.data(dataclean)
+	.attr("cx", function (d) { return x(22)+50; })
+	.attr("cy", function (d) { return y(67)+50; })
+	.attr("r", 50)
+	.style("fill", "none")
+	.style("stroke-dasharray", ("7,5"))
+	.style("stroke-width", "0px")
+	//.style("stroke", "lightgrey")
+	.transition()
+	.delay(delay)
+	.duration(duration)
+	.style("stroke-width", strokewidth);
 
 // Annotation: Circles around outliers (New Mexico)
 svg.append("circle")
@@ -371,29 +344,11 @@ svg.append("circle")
 	.duration(duration)
 	.style("stroke-width", strokewidth);
 
-// Annotation: Circles around outliers (South Carolina)
-svg.append("circle")
-	.data(dataclean)
-	.attr("cx", function (d) { return x(26.6)+50; })
-	.attr("cy", function (d) { return y(45.5)+50; })
-	//.attr("cx", function (d) { console.log(d); return x(d.PopU)+50; } )
-	//.attr("cy", function (d) { return y(d.Deaths)+50; } )
-	.attr("r", rad)
-	.style("fill", "none")
-	.style("stroke-dasharray", ("7,5"))
-	.style("stroke-width", "0px")
-	.transition()
-	.delay(delay)
-	.duration(duration)
-	.style("stroke-width", strokewidth);
-
 // Annotation: Circles around outliers (Louisiana)
 svg.append("circle")
 	.data(dataclean)
 	.attr("cx", function (d) { return x(32.3)+50; })
 	.attr("cy", function (d) { return y(52.6)+50; })
-	//.attr("cx", function (d) { console.log(d); return x(d.PopU)+50; } )
-	//.attr("cy", function (d) { return y(d.Deaths)+50; } )
 	.attr("r", rad)
 	.style("fill", "none")
 	.style("stroke-dasharray", ("7,5"))

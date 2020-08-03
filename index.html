@@ -29,7 +29,6 @@
 		<a href="page2.html" class="next">Next &raquo;</a>
 	</p>
 
-
 <script>
 
 async function init() {
@@ -43,7 +42,6 @@ dataclean = data.filter( function (d) {
 		return d };
 });
 
-//var races = data.columns.slice(3,9);
 var races = ["Non-Hispanic White", 
 	"Non-Hispanic Black or African American",
 	"Hispanic or Latino",
@@ -72,11 +70,7 @@ w = 900 - leftmargin - rightmargin;
 h = 500 - topmargin - bottommargin;
 
 // Define the colors
-//var colorarray = ['#003f5c','#ffa600','#955196','#ff6e54','#00C974','#3498DB'];
 var colorarray = ['#955196','#ffa600','#00C974','#ff6e54','#003f5c','#3498DB'];
-//var colorarray = ['#34BDDB','#A634DB','#DB5234','#6ADB34','#E7CE17','#E71798'];
-//var colorarray = ['','','','','',''];
-//var colorarray = ['#4043EA','#EA4040','#95EA40','#40EAEA','#9540EA','#EAB440'];
 
 // Legend parameters
 var legenddata = [
@@ -115,7 +109,6 @@ svg.selectAll("text")
 
 // X-axis (bottom)
 var xdomain = dataclean.map(function(d) { return d.State}).keys();
-//console.log("xdomain:", xdomain);
 var x = d3.scaleBand()
 	.domain(states)
 	.range([0,w])
@@ -138,7 +131,6 @@ ydomain = [0,Math.ceil(d3.max(dataclean, function(d)
 		return d[races[0]] + d[races[1]] + d[races[2]] + d[races[3]] + d[races[4]] + d[races[5]];
 	} else { return 0; }
 })/1000)*1000];
-//console.log("ydomain:", ydomain);
 var y = d3.scaleLinear()
 	.domain(ydomain)
 	.range([h,0]);
@@ -183,8 +175,6 @@ var color = d3.scaleOrdinal()
 var stackedData = d3.stack()
 	.keys(races)
 	(dataclean);
-
-//console.log("stackedata:", stackedData)
 
 // Show the bars
 svg.append("g")
@@ -251,7 +241,6 @@ svg.append("text")
 	.style("font-size", "30px")
 	.style("font-family", "Georgia, serif")
 	.style("fill", "none")
-	//.attr("alignment-baseline","middle")
 	.transition()
 	.delay(13000)
 	.duration(3000)
@@ -278,7 +267,6 @@ svg.data(data)
 		.text("Total NYC Deaths: " + addcomma(totalnycdeaths))
 		.style("font-size", "14px")
 		.style("font-family", "Georgia, serif")
-		//.attr("alignment-baseline","middle")
 		.style("fill", "none")
 		.transition()
 		.delay(10000)

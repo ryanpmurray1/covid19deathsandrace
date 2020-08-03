@@ -15,16 +15,10 @@
 	<p class="blocktext">
     The bar chart below presents the data from the previous slide to allow side by side comparisons for each state. The first bar in each pair represents the percentage of total deaths for that race, while the second bar in each pair represents the percentage of total population for that race.
     <br><br>
-    In the United States overall, 22.6% of all COVID-19 deaths are Black, while they only make up 12.5% of the population. Looking closer at the states discovered in the previous page, it is revealed that Michigan (27.8%), District of Columbia (27.3%), Missouri (22.8), Louisiana (20%), and South Carolina (18.9%) have the largest disproportionate number of COVID-19 deaths for Blacks. Additionally, New Mexico (50.9%) has the largest disproportionate number of COVID-19 deaths overall and for American Indians/Alaska Natives.
+    In the United States overall, approximately 23% of all COVID-19 deaths are Black, while they only make up 12.5% of the population. Looking closer at the states discovered in the previous page, it is revealed that Michigan, District of Columbia, Missouri, and Louisiana, have at the most disproportionate number (at least 20%) of COVID-19 deaths for Blacks. Additionally, New Mexico has the largest disproportionate number (approximately 51%) of COVID-19 deaths for American Indians/Alaska Natives and overall.
     <p class="blocktext" style="font-weight:bold;">
         Select a different state from the dropdown list to view it's specific data. Can you identify any other states where minorities are dying from COVID-19 at a disproportionate rate? If so, what could be the reason?
     </p>
-	<!--
-	<div id="popButton">
-	  <input type="radio" name="population" value="unweighted" checked="checked"> Unweighted Population (%)<br>
-	  <input type="radio" name="population" value="weighted"> Weighted Population (%)<br>
-	</div> -->
-
     <div id="statesButton" align="center" style="text-align:center;" align-items="center">
 	   <select id="selectButton" class="dropdown"></select>
     </div>
@@ -63,8 +57,6 @@ datapop_weighted = data.filter( function (d) {
 	if (d.Indicator == "Weighted distribution of population (%)") {
 		return d };
 });
-//console.log("datadeaths:", datadeaths);
-//console.log("datapop_unweighted:", datapop_unweighted);
 
 var races = ["White", "Black", "Hispanic", "Asian", "Am. Indian/Native", "Other"];
 var racecolumns = ["Non-Hispanic White", 
@@ -77,7 +69,6 @@ var racecolumns = ["Non-Hispanic White",
 
 // Create the subgroups for the X-axis
 var subgroups = ["Deaths", "Pop"];
-console.log("subgroups:", subgroups);
 
 // Create the states array for the select button
 var states = Array();
@@ -109,11 +100,6 @@ function cleanData (state, weightedpop) {
 selectedState = "United States"
 dataclean = cleanData(selectedState, false)
 
-console.log("dataclean:", dataclean)
-console.log("states:", states);
-console.log("dataclean:", dataclean);
-
-
 // Define the margins and dimensions
 topmargin = 50;
 bottommargin = 50;
@@ -123,7 +109,6 @@ w = 900 - leftmargin - rightmargin;
 h = 500 - topmargin - bottommargin;
 
 // Define the colors
-//var colorarray = ['#003f5c','#ffa600','#444e86','#ff6e54','#955196','#dd5182'];
 var colorarray = ['#955196','#ffa600','#00C974','#ff6e54','#003f5c','#3498DB'];
 
 // Define the main svg
@@ -139,9 +124,7 @@ svg.append("g")
     .attr("transform","translate("+50+","+(h+50)+")")
 	.call(d3.axisBottom(x))
     .selectAll("text")
-    	//.attr("transform", "translate(-10,0)rotate(-45)")
     	.attr("transform", "translate(0,0)")
-    	//.style("text-anchor", "start")
     	.style("font-size", "14px")
         .style("font-family", "Georgia, serif");
 svg.append("text")
@@ -156,23 +139,6 @@ var xSubgroup = d3.scaleBand()
     .domain(subgroups)
     .range([0, x.bandwidth()])
     .padding([0.05])
-/*svg.append("g")
-	.attr("transform","translate("+50+","+(h+50)+")")
-    .call(d3.axisBottom(xSubgroup))
-    .selectAll("text")
-    	//.attr("transform", "translate(-10,0)rotate(-45)")
-    	.attr("transform", "translate(25,0)")
-    	//.style("text-anchor", "start")
-    	.style("font-size", "12px");*/
-/*svg.append("g")
-	.attr("transform","translate("+50+","+(h+50)+")")
-    .call(d3.axisBottom(xSubgroup))
-    .selectAll("text")
-    	//.attr("transform", "translate(-10,0)rotate(-45)")
-    	.attr("transform", "translate(155,0)")
-    	//.style("text-anchor", "start")
-    	.style("font-size", "12px");*/
-
 
 // Y-axis (left)
 var y = d3.scaleLinear()
@@ -237,36 +203,23 @@ d3.select("#selectButton").on("change", function(d) {
     showBars(cleanData(selectedState, false), true);
 })
 
-// TO DO
-/*d3.select("#unweighted").on("click", function() {
-	console.log(cleanData(selectedState, false));
-	showBars(cleanData(selectedState, false), true);
-});
-
-d3.select("#weighted").on("click", function() {
-	showBars(cleanData(selectedState, true), true);
-});*/
-
 
 // Function to display and update the bars
 function showBars(datafiltered, newstate) {
     var dataType = d3.keys(datafiltered[0]).filter(function(key) { return key !== "Race"; });
-    console.log("dataType:", dataType);
     datafiltered.forEach(function(d) {
       d.dataTypes = dataType.map(function(key) { return {key: key, value: +d[key]}; });
     });
-    console.log("datafiltered:", datafiltered);
-
 
     var race = svg.selectAll(".Race")
         .data(datafiltered)
       	.enter().append("g")
         	.attr("class", "g")
-        	.attr("transform", function(d) { console.log("transform:", d.Race); return "translate(" + (leftmargin + x(d.Race)) + ",50)"; })
-        	.attr("fill", function(d) { console.log("fill d:", d); return color(d.Race); });
+        	.attr("transform", function(d) { return "translate(" + (leftmargin + x(d.Race)) + ",50)"; })
+        	.attr("fill", function(d) { return color(d.Race); });
         	
     var rects = race.selectAll("rect")
-        .data(function(d) { console.log("rects data:", d.dataTypes); return d.dataTypes; });
+        .data(function(d) { return d.dataTypes; });
   
     if (newstate) {
         svg.selectAll("rect")
@@ -305,16 +258,16 @@ function showBars(datafiltered, newstate) {
     } else {
         rects.enter().append("rect")
             .attr("width", xSubgroup.bandwidth())
-            .attr("x", function(d) { console.log("x:", d); return xSubgroup(d.key); })
+            .attr("x", function(d) { return xSubgroup(d.key); })
             .attr("y", function(d) { return y(0); })
-            .attr("height", function(d) { console.log(d); return h - y(0); })
+            .attr("height", function(d) { return h - y(0); })
             .attr("opacity", function(d, i) {
             	if (i == 0) {return 1;}
             	else {return 0.5;}})
             .transition()
             .duration(1000)
             .attr("y", function(d) { return y(d.value); })
-            .attr("height", function(d) { console.log(d); return h - y(d.value); })
+            .attr("height", function(d) { return h - y(d.value); })
         rects.exit()
             .remove();
     } 
